@@ -10,25 +10,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /** Loads the real GitHub Actions logs in {@code src/test/resources/logs} (see the README there). */
-final class Fixtures {
+public final class Fixtures {
 
     private Fixtures() {
     }
 
-    static String log(String scenario) {
+    public static String log(String scenario) {
         return resource(scenario + ".log");
     }
 
-    static WorkflowJob job(String scenario) {
+    public static WorkflowJob job(String scenario) {
         return GitHubJson.mapper().readValue(resource(scenario + ".job.json"), WorkflowJob.class);
     }
 
-    static List<CheckRunAnnotation> annotations(String scenario) {
+    public static List<CheckRunAnnotation> annotations(String scenario) {
         return List.of(GitHubJson.mapper().readValue(resource(scenario + ".annotations.json"), CheckRunAnnotation[].class));
     }
 
     /** The evidence ingestion would hand to the analyzer for this scenario. */
-    static JobEvidence evidence(String scenario) {
+    public static JobEvidence evidence(String scenario) {
         WorkflowJob job = job(scenario);
         List<String> failedSteps = job.failedStepNames().isEmpty()
                 ? job.steps().stream().filter(step -> "cancelled".equals(step.conclusion())).map(WorkflowJob.Step::name).toList()

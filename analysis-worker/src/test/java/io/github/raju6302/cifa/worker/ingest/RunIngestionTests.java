@@ -82,7 +82,7 @@ class RunIngestionTests {
     }
 
     @Test
-    void ingestsFailedJobsFromTheQueueAndRedactsLogs() {
+    void runsTheWholePipelineFromTheQueueAndRedactsLogs() {
         stubJobs();
         stubAnnotations(301, "[]");
         stubLog(301, TEST_FAILURE_LOG);
@@ -90,7 +90,12 @@ class RunIngestionTests {
         redis.opsForStream().add(StreamRecords.string(Map.of(RunQueue.RUN_ID_FIELD, Long.toString(runId)))
                 .withStreamKey(RunQueue.STREAM));
 
-        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(status()).isEqualTo("INGESTED"));
+        // The run goes through both pipeline stages: ingestion, then diagnosis (rule-based here,
+        // since tests don't call Claude).
+        await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> assertThat(status()).isEqualTo("DIAGNOSED"));
+        assertThat(jdbc.sql("SELECT source, category FROM diagnosis").query().singleRow())
+                .containsEntry("source", "RULES")
+                .containsEntry("category", "TEST_FAILURE");
         Map<String, Object> job = jdbc.sql("SELECT * FROM failed_job").query().singleRow();
         assertThat(job)
                 .containsEntry("github_job_id", 301L)
