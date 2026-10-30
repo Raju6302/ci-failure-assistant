@@ -61,9 +61,14 @@ class RunQueries {
                         SELECT j.id, j.github_job_id, j.name, j.conclusion, j.failed_steps, j.log_bytes, j.log_truncated,
                                j.html_url, j.started_at, j.completed_at,
                                a.category, a.failed_step, a.summary, a.error_excerpt, a.error_start_line, a.error_end_line,
-                               a.code_references::text AS code_references, a.fingerprint
+                               a.code_references::text AS code_references, a.fingerprint,
+                               d.source AS d_source, d.category AS d_category, d.root_cause, d.confidence,
+                               d.evidence::text AS evidence, d.suggested_fix, d.patch, d.model, d.steps,
+                               d.input_tokens, d.output_tokens, d.cost_usd, d.latency_ms, d.agent_error,
+                               d.created_at AS diagnosed_at
                           FROM failed_job j
                           LEFT JOIN failure_analysis a ON a.failed_job_id = j.id
+                          LEFT JOIN diagnosis d ON d.failed_job_id = j.id
                          WHERE j.workflow_run_id = :runId
                          ORDER BY j.started_at NULLS LAST, j.id""")
                 .param("runId", runId)
@@ -78,7 +83,8 @@ class RunQueries {
                         rs.getString("html_url"),
                         instant(rs, "started_at"),
                         instant(rs, "completed_at"),
-                        analysis(rs)))
+                        analysis(rs),
+                        diagnosis(rs)))
                 .list();
     }
 
@@ -95,6 +101,28 @@ class RunQueries {
                 rs.getObject("error_end_line", Integer.class),
                 List.of(json.readValue(rs.getString("code_references"), RunDetail.CodeReference[].class)),
                 rs.getString("fingerprint"));
+    }
+
+    private RunDetail.Diagnosis diagnosis(ResultSet rs) throws SQLException {
+        if (rs.getString("d_source") == null) {
+            return null;
+        }
+        return new RunDetail.Diagnosis(
+                rs.getString("d_source"),
+                rs.getString("d_category"),
+                rs.getString("root_cause"),
+                rs.getString("confidence"),
+                List.of(json.readValue(rs.getString("evidence"), RunDetail.Evidence[].class)),
+                rs.getString("suggested_fix"),
+                rs.getString("patch"),
+                rs.getString("model"),
+                rs.getInt("steps"),
+                rs.getLong("input_tokens"),
+                rs.getLong("output_tokens"),
+                rs.getDouble("cost_usd"),
+                rs.getLong("latency_ms"),
+                rs.getString("agent_error"),
+                instant(rs, "diagnosed_at"));
     }
 
     private static RunSummary summary(ResultSet rs) throws SQLException {
