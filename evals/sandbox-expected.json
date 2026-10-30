@@ -1,0 +1,53 @@
+{
+  "description": "Ground truth for the sandbox scenarios; used by the Phase 8 eval suite. Never expose this file to the agent.",
+  "scenarios": {
+    "java-compile-error": {
+      "category": "COMPILE_ERROR",
+      "rootCause": "InvoiceService calls LineItem.price(), but the record component is named unitPrice().",
+      "culprit": { "file": "sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java" },
+      "fix": "Call item.unitPrice() (or use item.total())."
+    },
+    "java-test-failure": {
+      "category": "TEST_FAILURE",
+      "rootCause": "applyDiscount multiplies by (1 - percent) instead of (1 - percent / 100), so 10% gives -900 instead of 90.",
+      "culprit": { "file": "sandbox-repos/java-test-failure/src/main/java/shop/PriceCalculator.java" },
+      "fix": "return price * (1 - percent / 100);"
+    },
+    "java-missing-dependency": {
+      "category": "DEPENDENCY",
+      "rootCause": "pom.xml depends on org.apache.commons:commons-lang4, which does not exist; the intended artifact is commons-lang3.",
+      "culprit": { "file": "sandbox-repos/java-missing-dependency/pom.xml" },
+      "fix": "Change the artifactId to commons-lang3."
+    },
+    "node-test-failure": {
+      "category": "TEST_FAILURE",
+      "rootCause": "slugify's regex has no global flag, so only the first run of separators is replaced.",
+      "culprit": { "file": "sandbox-repos/node-test-failure/slugify.js" },
+      "fix": "Use /[^a-z0-9]+/g."
+    },
+    "node-flaky-test": {
+      "category": "FLAKY_TEST",
+      "rootCause": "The test waits a fixed 50ms for a cache that takes a random 0-100ms to warm, so it fails about half the time.",
+      "culprit": { "file": "sandbox-repos/node-flaky-test/cache.test.js" },
+      "fix": "Await the warmCache() promise instead of sleeping."
+    },
+    "python-test-failure": {
+      "category": "TEST_FAILURE",
+      "rootCause": "parse_duration only applies the unit multiplier for seconds; hours and minutes are added as raw numbers.",
+      "culprit": { "file": "sandbox-repos/python-test-failure/durations.py" },
+      "fix": "total += int(amount) * _UNITS[unit]"
+    },
+    "docker-build-failure": {
+      "category": "CONFIG_ERROR",
+      "rootCause": "The Dockerfile copies requirements.txt, which does not exist in the build context.",
+      "culprit": { "file": "sandbox-repos/docker-build-failure/Dockerfile" },
+      "fix": "Add requirements.txt or remove the COPY and pip install steps."
+    },
+    "job-timeout": {
+      "category": "INFRASTRUCTURE",
+      "rootCause": "The script polls payments-service on localhost:9090, which is never started in the job, until the 1-minute job timeout.",
+      "culprit": { "file": "sandbox-repos/job-timeout/slow-integration-test.sh" },
+      "fix": "Start the service (e.g. as a job service container) or add a bounded retry with a clear error."
+    }
+  }
+}

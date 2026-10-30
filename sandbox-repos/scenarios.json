@@ -1,0 +1,10 @@
+[
+  { "id": "java-compile-error",      "toolchain": "java",   "command": "mvn -B verify" },
+  { "id": "java-test-failure",       "toolchain": "java",   "command": "mvn -B verify" },
+  { "id": "java-missing-dependency", "toolchain": "java",   "command": "mvn -B verify" },
+  { "id": "node-test-failure",       "toolchain": "node",   "command": "npm test" },
+  { "id": "node-flaky-test",         "toolchain": "node",   "command": "npm test" },
+  { "id": "python-test-failure",     "toolchain": "python", "command": "pip install -q -r requirements.txt && pytest -q" },
+  { "id": "docker-build-failure",    "toolchain": "docker", "command": "docker build -t sandbox ." },
+  { "id": "job-timeout",             "toolchain": "shell",  "command": "./slow-integration-test.sh", "timeoutMinutes": 1 }
+]
