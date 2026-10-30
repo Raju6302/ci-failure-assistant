@@ -60,6 +60,9 @@ public class HybridRetriever {
     }
 
     public List<Snippet> search(long repositoryId, String errorText, List<FailureContext.CodeReference> references, int limit) {
+        if (!hasIndex(repositoryId)) {
+            return List.of(); // nothing to search; don't load the embedding model for nothing
+        }
         Map<Long, Candidate> candidates = new LinkedHashMap<>();
         List<Candidate> vector = vectorSearch(repositoryId, errorText);
         List<Candidate> keyword = keywordSearch(repositoryId, errorText);
@@ -72,6 +75,11 @@ public class HybridRetriever {
                 .limit(limit)
                 .map(c -> new Snippet(c.path, c.startLine, c.endLine, c.symbol, c.content, c.score))
                 .toList();
+    }
+
+    private boolean hasIndex(long repositoryId) {
+        return jdbc.sql("SELECT EXISTS (SELECT 1 FROM code_chunk WHERE repository_id = :repo)")
+                .param("repo", repositoryId).query(Boolean.class).single();
     }
 
     private List<Candidate> vectorSearch(long repositoryId, String errorText) {

@@ -154,6 +154,17 @@ class DiagnosisAgentTest {
     }
 
     @Test
+    void explainsMissingOrInvalidCredentials() {
+        claude.stubFor(post(urlPathEqualTo("/v1/messages")).willReturn(aResponse().withStatus(401)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"type\": \"error\", \"error\": {\"type\": \"authentication_error\", \"message\": \"x-api-key header is required\"}}")));
+
+        assertThatThrownBy(() -> agent(properties(15, 400_000)).diagnose(context()))
+                .isInstanceOfSatisfying(AgentException.class, e -> assertThat(e.isRetryable()).isFalse())
+                .hasMessageContaining("ANTHROPIC_API_KEY");
+    }
+
+    @Test
     void treatsRateLimitsAndOverloadAsRetryable() {
         claude.stubFor(post(urlPathEqualTo("/v1/messages")).willReturn(aResponse().withStatus(429)
                 .withHeader("Content-Type", "application/json")

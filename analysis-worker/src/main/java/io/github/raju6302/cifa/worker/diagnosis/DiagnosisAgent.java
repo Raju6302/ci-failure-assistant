@@ -7,6 +7,7 @@ import com.anthropic.errors.AnthropicServiceException;
 import com.anthropic.errors.InternalServerException;
 import com.anthropic.errors.NoCredentialsException;
 import com.anthropic.errors.RateLimitException;
+import com.anthropic.errors.UnauthorizedException;
 import com.anthropic.models.beta.messages.BetaCacheControlEphemeral;
 import com.anthropic.models.beta.messages.BetaContentBlockParam;
 import com.anthropic.models.beta.messages.BetaMessage;
@@ -151,8 +152,8 @@ public class DiagnosisAgent {
             return client.beta().messages().create(request.build());
         } catch (RateLimitException | InternalServerException | AnthropicIoException e) {
             throw new AgentException("Claude API temporarily unavailable: " + e.getMessage(), true, e);
-        } catch (NoCredentialsException e) {
-            throw new AgentException("No Anthropic credentials configured (set ANTHROPIC_API_KEY)", false, e);
+        } catch (NoCredentialsException | UnauthorizedException e) {
+            throw new AgentException("Claude API credentials are missing or invalid (set ANTHROPIC_API_KEY)", false, e);
         } catch (AnthropicServiceException e) {
             // 529 overloaded is temporary; other 4xx (bad request, auth, permissions) are not.
             throw new AgentException("Claude API error " + e.statusCode() + ": " + e.getMessage(),

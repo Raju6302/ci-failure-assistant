@@ -68,10 +68,13 @@ services:
       REDIS_HOST: redis
       MCP_URL: http://mcp-github-server:8082/mcp
       RAG_MODEL_CACHE_DIR: /models
+      # DJL (behind the embedding model) downloads native libraries; keep them on the volume too.
+      DJL_CACHE_DIR: /models/djl
+      ENGINE_CACHE_DIR: /models/djl
     volumes:
       # GitHub App private key, if you use one: put it in ./secrets (git-ignored).
       - ../secrets:/run/secrets:ro
-      # The embedding model (~90 MB) is downloaded once and kept here.
+      # The embedding model (~90 MB) and its native libraries are downloaded once and kept here.
       - model-cache:/models
     healthcheck:
       <<: *health
