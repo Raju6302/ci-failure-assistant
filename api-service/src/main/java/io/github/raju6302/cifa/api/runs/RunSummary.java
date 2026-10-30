@@ -3,7 +3,12 @@ package io.github.raju6302.cifa.api.runs;
 import io.github.raju6302.cifa.common.RunStatus;
 import java.time.Instant;
 
-/** One row of the dashboard's runs table. */
+/**
+ * One row of the dashboard's runs table.
+ *
+ * @param category failure category of the run's first failed job, or null if not analyzed (yet)
+ * @param summary  that job's one-line error summary, or null
+ */
 public record RunSummary(
         long id,
         String repository,
@@ -19,5 +24,7 @@ public record RunSummary(
         String htmlUrl,
         Instant receivedAt,
         Instant ingestedAt,
-        String errorMessage) {
+        String errorMessage,
+        String category,
+        String summary) {
 }

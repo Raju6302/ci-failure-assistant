@@ -4,6 +4,38 @@ import { getJson } from './client'
 
 export type RunStatus = 'RECEIVED' | 'QUEUED' | 'INGESTING' | 'INGESTED' | 'INGEST_FAILED'
 
+/** What kind of problem failed a job, as decided by the worker's rule-based analysis. */
+export type FailureCategory =
+  | 'COMPILE_ERROR'
+  | 'TEST_FAILURE'
+  | 'DEPENDENCY'
+  | 'FLAKY_TEST'
+  | 'INFRASTRUCTURE'
+  | 'CONFIG_ERROR'
+  | 'UNKNOWN'
+
+/** A repo-relative file, and line when known, that the failure points at. */
+export interface CodeReference {
+  path: string
+  line: number | null
+}
+
+export interface FailureAnalysis {
+  category: FailureCategory
+  /** The step as GitHub names it, e.g. `Build and test`. */
+  failedStep: string | null
+  /** One line naming the actual error. */
+  summary: string
+  /** The relevant log lines, without timestamps or color codes. */
+  excerpt: string
+  /** 1-based line of the job log where the excerpt starts; null when built from annotations (expired log). */
+  excerptStartLine: number | null
+  excerptEndLine: number | null
+  codeReferences: CodeReference[]
+  /** Equal for the same failure on another commit. */
+  fingerprint: string
+}
+
 export interface WorkflowRun {
   id: number
   repository: string
@@ -21,6 +53,10 @@ export interface WorkflowRun {
   receivedAt: string
   ingestedAt: string | null
   errorMessage: string | null
+  /** Category of the run's first failed job; null until it is analyzed. */
+  category: FailureCategory | null
+  /** That job's one-line error summary. */
+  summary: string | null
 }
 
 export interface FailedJob {
@@ -35,6 +71,8 @@ export interface FailedJob {
   htmlUrl: string | null
   startedAt: string | null
   completedAt: string | null
+  /** Null until the worker has analyzed the job. */
+  analysis: FailureAnalysis | null
 }
 
 export interface WorkflowRunDetail extends WorkflowRun {

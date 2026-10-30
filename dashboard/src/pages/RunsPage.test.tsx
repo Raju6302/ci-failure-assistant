@@ -32,6 +32,27 @@ describe('RunsPage', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/runs?limit=50', expect.anything())
   })
 
+  it('shows the failure category and summary when the run has been analyzed', async () => {
+    stubFetch(
+      jsonResponse([
+        makeRun({ category: 'COMPILE_ERROR', summary: 'InvoiceService.java:9: cannot find symbol: method price()' }),
+        makeRun({ id: 13, runNumber: 43 }),
+      ]),
+    )
+
+    renderWithProviders(<RunsPage />)
+
+    const analyzed = (await screen.findByRole('link', { name: 'Sandbox failures #42' })).closest('tr')!
+    expect(within(analyzed).getByText('Compile error')).toBeInTheDocument()
+    expect(within(analyzed).getByText('InvoiceService.java:9: cannot find symbol: method price()')).toHaveAttribute(
+      'title',
+      'InvoiceService.java:9: cannot find symbol: method price()',
+    )
+
+    const pending = screen.getByRole('link', { name: 'Sandbox failures #43' }).closest('tr')!
+    expect(within(pending).getByText('—')).toBeInTheDocument()
+  })
+
   it('shows the empty state when there are no runs', async () => {
     stubFetch(jsonResponse([]))
 

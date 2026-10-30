@@ -46,12 +46,21 @@ What works today:
    queues them once the database transaction commits. If Redis is down at that moment,
    a relay re-queues the run later. GitHub doesn't redeliver webhooks on its own.
 2. **analysis-worker** reads the queue as part of a consumer group, fetches the run's
-   failed jobs from the GitHub API, downloads each log (keeping the last 2 MB, where
-   errors usually are), **removes secrets**, and stores it. Temporary GitHub errors are
-   retried, permanent ones fail fast, and entries a crashed worker never finished are
+   failed jobs from the GitHub API (including jobs cancelled by `timeout-minutes`, which
+   only their check-run annotations reveal), downloads each log (keeping the last 2 MB,
+   where errors usually are), **removes secrets**, and stores it. Temporary GitHub errors
+   are retried, permanent ones fail fast, and entries a crashed worker never finished are
    picked up again.
-3. **dashboard** lists failed runs and their jobs, refreshing every 5 seconds.
-4. **sandbox-repos** holds eight small projects that fail on purpose (compile error,
+3. **Log analysis** (no AI): the worker finds the failing step, lets a parser for Maven,
+   Gradle, Node/Jest/npm, pytest/pip or Docker name the actual error, and classifies it
+   (compile error, test failure, dependency, infrastructure, config error…). It keeps the
+   relevant log lines with their line numbers, the files involved, and a fingerprint so
+   repeats can be grouped. Every sandbox failure gets its expected category except the
+   flaky test, which one log can't tell apart from a real test failure (that needs run
+   history, Phase 7). See [log analysis](docs/log-analysis.md).
+4. **dashboard** lists failed runs with their failure category, and shows each job's
+   error, log excerpt and code references, refreshing every 5 seconds.
+5. **sandbox-repos** holds eight small projects that fail on purpose (compile error,
    failing test, missing dependency, flaky test, Docker build, timeout…). The
    *Sandbox failures* workflow runs them on demand, so there are always real failures to test with.
 5. **mcp-github-server** offers the agent (Phase 4) six read-only MCP tools: commit diffs,
@@ -87,9 +96,9 @@ webhooks: see [local development](docs/local-development.md) and
 
 ```
 api-service/        webhooks, REST API, queue producer, relay
-analysis-worker/    queue consumer, GitHub ingestion, secret redaction (agent + RAG later)
+analysis-worker/    queue consumer, GitHub ingestion, secret redaction, log analysis (agent + RAG later)
 mcp-github-server/  MCP tools for the agent: diffs, files, search, workflow files, logs
-github-client/      GitHub REST client: App/token auth, jobs, logs, commits, files, search, webhook signatures
+github-client/      GitHub REST client: App/token auth, jobs, logs, annotations, commits, files, search, webhook signatures
 common/             shared status values, queue names and database migrations
 dashboard/          React + TypeScript frontend
 sandbox-repos/      projects that fail on purpose
