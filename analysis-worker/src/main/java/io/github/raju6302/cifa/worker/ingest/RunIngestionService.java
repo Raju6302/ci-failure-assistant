@@ -6,6 +6,7 @@ import io.github.raju6302.cifa.github.auth.MissingCredentialsException;
 import io.github.raju6302.cifa.github.model.JobLog;
 import io.github.raju6302.cifa.github.model.WorkflowJob;
 import io.github.raju6302.cifa.worker.redaction.SecretRedactor;
+import io.github.raju6302.cifa.worker.redaction.SecretRedactor.Redaction;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -47,7 +48,11 @@ public class RunIngestionService {
                     .toList();
             for (WorkflowJob job : failedJobs) {
                 JobLog jobLog = downloadLog(run, job);
-                store.saveFailedJob(run.id(), job, jobLog, jobLog == null ? null : redactor.redact(jobLog.text()));
+                Redaction redacted = redactor.redact(jobLog == null ? null : jobLog.text());
+                if (redacted.secretsRemoved() > 0) {
+                    log.info("Redacted {} secret(s) from job {} of run {}", redacted.secretsRemoved(), job.id(), run.id());
+                }
+                store.saveFailedJob(run.id(), job, jobLog, redacted.text());
             }
             store.markIngested(run.id());
             log.info("Ingested run {} ({} #{}): {} failed jobs",
