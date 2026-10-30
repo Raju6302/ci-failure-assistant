@@ -1,0 +1,6 @@
+**/target
+dashboard
+.git
+.github
+.env
+*.pem

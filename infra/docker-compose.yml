@@ -1,0 +1,88 @@
+# Local stack. From the repo root: docker compose -f infra/docker-compose.yml up --build
+# Ports are bound to 127.0.0.1 because the API has no auth until Phase 7.
+name: ci-failure-assistant
+
+x-backend: &backend
+  env_file:
+    - path: ../.env
+      required: false
+  environment:
+    DATABASE_URL: jdbc:postgresql://postgres:5432/cifa
+    DATABASE_USER: cifa
+    DATABASE_PASSWORD: cifa
+    REDIS_HOST: redis
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: cifa
+      POSTGRES_USER: cifa
+      POSTGRES_PASSWORD: cifa
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cifa -d cifa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    ports: ["127.0.0.1:6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api-service:
+    <<: *backend
+    build:
+      context: ..
+      args: { SERVICE: api-service }
+    ports: ["127.0.0.1:8080:8080"]
+    healthcheck:
+      <<: &health
+        interval: 10s
+        timeout: 3s
+        start_period: 40s
+        retries: 5
+      test: ["CMD", "curl", "-fs", "http://localhost:8080/actuator/health/readiness"]
+
+  analysis-worker:
+    <<: *backend
+    build:
+      context: ..
+      args: { SERVICE: analysis-worker }
+    volumes:
+      # GitHub App private key, if you use one: put it in ./secrets (git-ignored).
+      - ../secrets:/run/secrets:ro
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "-fs", "http://localhost:8081/actuator/health/readiness"]
+
+  mcp-github-server:
+    build:
+      context: ..
+      args: { SERVICE: mcp-github-server }
+    ports: ["127.0.0.1:8082:8082"]
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "-fs", "http://localhost:8082/actuator/health/readiness"]
+    restart: unless-stopped
+
+  dashboard:
+    build: ../dashboard
+    ports: ["127.0.0.1:3000:80"]
+    depends_on: [api-service]
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
