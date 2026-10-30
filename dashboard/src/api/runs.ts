@@ -2,7 +2,15 @@ import { useQuery } from '@tanstack/react-query'
 import { isInProgress } from '../lib/status'
 import { getJson } from './client'
 
-export type RunStatus = 'RECEIVED' | 'QUEUED' | 'INGESTING' | 'INGESTED' | 'INGEST_FAILED'
+export type RunStatus =
+  | 'RECEIVED'
+  | 'QUEUED'
+  | 'INGESTING'
+  | 'INGESTED'
+  | 'INGEST_FAILED'
+  | 'DIAGNOSING'
+  | 'DIAGNOSED'
+  | 'DIAGNOSIS_FAILED'
 
 /** What kind of problem failed a job, as decided by the worker's rule-based analysis. */
 export type FailureCategory =
@@ -73,6 +81,39 @@ export interface FailedJob {
   completedAt: string | null
   /** Null until the worker has analyzed the job. */
   analysis: FailureAnalysis | null
+  /** Null until the job has been diagnosed. */
+  diagnosis: Diagnosis | null
+}
+
+/** A quote backing a diagnosis; `line` is 0 and `path` empty when not applicable. */
+export interface Evidence {
+  source: 'log' | 'file' | 'diff' | 'past_failure'
+  path: string
+  line: number
+  quote: string
+}
+
+/**
+ * The answer for a failed job: from the AI agent (`AGENT`) or, when the agent couldn't
+ * be used, from the rule-based analysis (`RULES`, with `agentError` saying why).
+ */
+export interface Diagnosis {
+  source: 'AGENT' | 'RULES'
+  category: FailureCategory
+  rootCause: string
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW'
+  evidence: Evidence[]
+  suggestedFix: string
+  /** Unified diff, or null when none was suggested. */
+  patch: string | null
+  model: string | null
+  steps: number
+  inputTokens: number
+  outputTokens: number
+  costUsd: number
+  latencyMs: number
+  agentError: string | null
+  createdAt: string
 }
 
 export interface WorkflowRunDetail extends WorkflowRun {

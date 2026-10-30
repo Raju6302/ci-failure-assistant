@@ -4,6 +4,7 @@ import { isNotFound } from '../api/client'
 import { useRun, type WorkflowRunDetail } from '../api/runs'
 import { BackLink } from '../components/BackLink'
 import { Card } from '../components/Card'
+import { DiagnosisCard } from '../components/DiagnosisCard'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { ExternalLink } from '../components/ExternalLink'
@@ -12,7 +13,7 @@ import { PageHeader } from '../components/PageHeader'
 import { RunSummary } from '../components/RunSummary'
 import { Skeleton } from '../components/Skeleton'
 import { StatusBadge } from '../components/StatusBadge'
-import { isInProgress } from '../lib/status'
+import { errorTitle, isInProgress } from '../lib/status'
 
 export function RunDetailPage() {
   const runId = Number(useParams().id)
@@ -59,7 +60,7 @@ function RunDetail({ runId }: { runId: number }) {
             role="alert"
             className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
           >
-            <p className="font-medium">Ingestion failed</p>
+            <p className="font-medium">{errorTitle(run.status)}</p>
             <p className="mt-1 font-mono text-xs break-words whitespace-pre-wrap">{run.errorMessage}</p>
           </div>
         )}
@@ -71,10 +72,24 @@ function RunDetail({ runId }: { runId: number }) {
       </Section>
 
       <Section title="Diagnosis">
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          AI diagnosis arrives in Phase 4: root cause, evidence and a suggested fix will appear here.
-        </p>
+        <Diagnoses run={run} />
       </Section>
+    </div>
+  )
+}
+
+function Diagnoses({ run }: { run: WorkflowRunDetail }) {
+  const diagnosed = run.jobs.filter((job) => job.diagnosis !== null)
+  if (diagnosed.length === 0) {
+    return (
+      <EmptyState
+        title={isInProgress(run.status) ? 'Diagnosing…' : 'No diagnosis for this run'}
+      />
+    )
+  }
+  return (
+    <div className="space-y-3">
+      {diagnosed.map((job) => job.diagnosis && <DiagnosisCard key={job.id} job={job} diagnosis={job.diagnosis} />)}
     </div>
   )
 }

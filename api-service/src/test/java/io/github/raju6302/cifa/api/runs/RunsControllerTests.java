@@ -107,6 +107,33 @@ class RunsControllerTests {
     }
 
     @Test
+    void showsEachJobsDiagnosisOrNullWhenThereIsNone() {
+        long runId = receive(failedRunPayload());
+        long diagnosed = insertJob(runId, 555, "java-test-failure", "2026-10-30T09:59:10Z");
+        insertJob(runId, 556, "lint", "2026-10-30T09:59:20Z");
+        jdbc.sql("""
+                        INSERT INTO diagnosis (failed_job_id, source, category, root_cause, confidence, evidence,
+                                               suggested_fix, patch, model, steps, input_tokens, output_tokens, cost_usd, latency_ms)
+                        VALUES (:job, 'AGENT', 'TEST_FAILURE', 'applyDiscount ignores the percent scale.', 'HIGH',
+                                '[{"source": "file", "path": "src/main/java/shop/PriceCalculator.java", "line": 7,
+                                   "quote": "return price * (1 - percent);"}]',
+                                'Divide percent by 100.', NULL, 'claude-opus-5-5', 3, 12000, 900, 0.0660, 41000)""")
+                .param("job", diagnosed)
+                .update();
+
+        assertThat(mvc.get().uri("/api/runs/{id}", runId))
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.jobs[0].diagnosis.source", source -> source.assertThat().isEqualTo("AGENT"))
+                .hasPathSatisfying("$.jobs[0].diagnosis.confidence", confidence -> confidence.assertThat().isEqualTo("HIGH"))
+                .hasPathSatisfying("$.jobs[0].diagnosis.evidence[0].line", line -> line.assertThat().isEqualTo(7))
+                .hasPathSatisfying("$.jobs[0].diagnosis.patch", patch -> patch.assertThat().isNull())
+                .hasPathSatisfying("$.jobs[0].diagnosis.costUsd", cost -> cost.assertThat().isEqualTo(0.066))
+                .hasPathSatisfying("$.jobs[0].diagnosis.steps", steps -> steps.assertThat().isEqualTo(3))
+                .hasPathSatisfying("$.jobs[1].diagnosis", diagnosis -> diagnosis.assertThat().isNull());
+    }
+
+    @Test
     void listsTheCategoryAndSummaryOfEachRunsFirstFailedJob() {
         long older = receive(failedRunPayload());
         long first = insertJob(older, 555, "java-compile-error", "2026-10-30T09:59:10Z");

@@ -41,6 +41,8 @@
         <spring-ai.version>2.0.2</spring-ai.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <wiremock.version>3.13.2</wiremock.version>
+        <anthropic-java.version>3.2.0</anthropic-java.version>
+        <mcp-sdk.version>2.1.0</mcp-sdk.version>
     </properties>
 
     <dependencyManagement>
@@ -66,6 +68,16 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.anthropic</groupId>
+                <artifactId>anthropic-java</artifactId>
+                <version>${anthropic-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.modelcontextprotocol.sdk</groupId>
+                <artifactId>mcp</artifactId>
+                <version>${mcp-sdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wiremock</groupId>

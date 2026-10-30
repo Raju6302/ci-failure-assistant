@@ -34,3 +34,17 @@ cifa:
     max-attempts: 3
     reclaim-idle: PT2M
     reclaim-interval: PT1M
+  diagnosis:
+    # Claude credentials come from ANTHROPIC_API_KEY. Without them, diagnoses fall back to rules.
+    agent-enabled: ${DIAGNOSIS_AGENT_ENABLED:true}
+    model: ${DIAGNOSIS_MODEL:claude-opus-5-5}
+    effort: high
+    max-steps: 15
+    token-budget: 400000
+    mcp:
+      url: ${MCP_URL:http://localhost:8082/mcp}
+      auth-token: ${MCP_AUTH_TOKEN:}
+  rag:
+    enabled: ${RAG_ENABLED:true}
+    embedder: ${RAG_EMBEDDER:onnx}
+    model-cache-dir: ${RAG_MODEL_CACHE_DIR:${java.io.tmpdir}/cifa-models}

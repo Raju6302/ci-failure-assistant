@@ -17,7 +17,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -91,6 +94,49 @@ public class GitHubClient {
                     }
                     return new JobLog(tail.text(), tail.totalBytes(), tail.truncated());
                 }));
+    }
+
+    /**
+     * Streams the repository's files at {@code ref} from GitHub's zip archive: one request
+     * instead of one per file. Paths are repo-relative (the archive's top folder is removed).
+     * Reading stops with an error once {@code maxBytes} of archive have been read.
+     */
+    public void readArchive(String repo, String ref, Long installationId, long maxBytes, Consumer<ArchiveFile> visitor) {
+        String[] ownerAndName = split(repo);
+        String token = tokens.token(installationId);
+        URI location = call(() -> api.get()
+                .uri("/repos/{owner}/{name}/zipball/{ref}", ownerAndName[0], ownerAndName[1], ref)
+                .header("Authorization", "Bearer " + token)
+                .exchange((request, response) -> {
+                    if (response.getStatusCode().is3xxRedirection() && response.getHeaders().getLocation() != null) {
+                        return response.getHeaders().getLocation();
+                    }
+                    throw new GitHubApiException(response.getStatusCode().value(),
+                            "Expected a redirect for the %s archive at %s, got %s".formatted(repo, ref, response.getStatusCode()));
+                }));
+        call(() -> api.get()
+                .uri(location)
+                .exchange((request, response) -> {
+                    if (!response.getStatusCode().is2xxSuccessful()) {
+                        throw new GitHubApiException(response.getStatusCode().value(),
+                                "Archive download for %s failed: %s".formatted(repo, response.getStatusCode()));
+                    }
+                    try (ZipInputStream zip = new ZipInputStream(new LimitedInputStream(response.getBody(), maxBytes))) {
+                        for (ZipEntry entry; (entry = zip.getNextEntry()) != null; ) {
+                            int slash = entry.getName().indexOf('/');
+                            if (!entry.isDirectory() && slash >= 0 && slash < entry.getName().length() - 1) {
+                                visitor.accept(new ArchiveFile(entry.getName().substring(slash + 1), zip.readAllBytes()));
+                            }
+                        }
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                    return null;
+                }));
+    }
+
+    /** A file from a repository archive. */
+    public record ArchiveFile(String path, byte[] content) {
     }
 
     /** A workflow run, mainly for its workflow file path and head commit. */

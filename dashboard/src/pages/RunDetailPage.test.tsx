@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react'
 import { Route, Routes } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
-import { jsonResponse, makeAnalysis, makeJob, makeRun } from '../test/fixtures'
+import { jsonResponse, makeAnalysis, makeDiagnosis, makeJob, makeRun } from '../test/fixtures'
 import { renderWithProviders } from '../test/render'
 import { RunDetailPage } from './RunDetailPage'
 
@@ -74,15 +74,36 @@ describe('RunDetailPage', () => {
     expect(screen.queryByText('Code references')).not.toBeInTheDocument()
   })
 
-  it('says when a job has not been analyzed yet and keeps the diagnosis placeholder', async () => {
-    const run = { ...makeRun(), jobs: [makeJob()] }
+  it('says when a job has not been analyzed or diagnosed yet', async () => {
+    const run = { ...makeRun({ status: 'DIAGNOSING' }), jobs: [makeJob()] }
     vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(run)))
 
     renderAt('/runs/12')
 
     expect(await screen.findByText('Not analyzed yet.')).toBeInTheDocument()
     expect(screen.queryByText('Code references')).not.toBeInTheDocument()
-    expect(screen.getByText(/AI diagnosis arrives in Phase 4/)).toBeInTheDocument()
+    expect(screen.getByText('Diagnosing…')).toBeInTheDocument()
+  })
+
+  it('shows each diagnosed job with its root cause, evidence and patch', async () => {
+    const run = { ...makeRun({ status: 'DIAGNOSED' }), jobs: [makeJob({ diagnosis: makeDiagnosis() })] }
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(run)))
+
+    renderAt('/runs/12')
+
+    expect(await screen.findByText(/multiplies by \(1 - percent\)/)).toBeInTheDocument()
+    expect(screen.getByText('High confidence')).toBeInTheDocument()
+    expect(screen.getByText('sandbox-repos/java-test-failure/src/main/java/shop/PriceCalculator.java:7')).toBeInTheDocument()
+    expect(screen.getByText('+ return price * (1 - percent / 100);')).toBeInTheDocument()
+  })
+
+  it('titles the error by the stage that failed', async () => {
+    const run = { ...makeRun({ status: 'DIAGNOSIS_FAILED', errorMessage: 'database unavailable' }), jobs: [] }
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(run)))
+
+    renderAt('/runs/12')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Diagnosis failed')
   })
 
   it('shows the ingestion error when present', async () => {

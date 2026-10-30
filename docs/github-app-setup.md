@@ -24,9 +24,9 @@ GitHub → **Settings → Developer settings → GitHub Apps → New GitHub App*
 | Contents | Read | Code, diffs, workflow files (Phases 3–5) |
 | Metadata | Read | Required by GitHub |
 | Pull requests | Read & write | Diagnosis comments (Phase 6) |
-| Checks | Read & write | Check-run summaries (Phase 6) |
+| Checks | Read (Read & write from Phase 6) | Job annotations, the only place GitHub reports a job timeout (Phase 2); check-run summaries (Phase 6) |
 
-You can leave Pull requests and Checks off until Phase 6.
+You can leave Pull requests off until Phase 6. Without **Checks: read**, ingestion still works but job timeouts are skipped like ordinary cancellations.
 
 **Subscribe to events:** `Workflow run`.
 

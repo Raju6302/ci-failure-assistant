@@ -23,7 +23,7 @@ describe('RunsPage', () => {
 
     const row = link.closest('tr')!
     expect(within(row).getByText('3f2c9a1')).toBeInTheDocument()
-    expect(within(row).getByText('Ingested')).toBeInTheDocument()
+    expect(within(row).getByText('Analyzed')).toBeInTheDocument()
     expect(within(row).getByText('Failure')).toBeInTheDocument()
     expect(within(row).getByRole('link', { name: /on GitHub/ })).toHaveAttribute(
       'href',

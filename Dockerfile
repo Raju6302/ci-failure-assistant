@@ -9,7 +9,8 @@ RUN --mount=type=cache,target=/root/.m2 \
  && cp "${SERVICE}"/target/"${SERVICE}"-*.jar /app.jar
 
 FROM eclipse-temurin:21-jre
-RUN groupadd --system app && useradd --system --gid app app
+RUN groupadd --system app && useradd --system --gid app app \
+ && mkdir /models && chown app:app /models   # embedding model cache (analysis-worker)
 WORKDIR /app
 COPY --from=build /app.jar app.jar
 USER app
