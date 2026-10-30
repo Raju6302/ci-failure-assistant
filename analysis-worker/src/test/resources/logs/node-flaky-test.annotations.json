@@ -1,0 +1,18 @@
+[
+  {
+    "path": ".github",
+    "start_line": 37,
+    "end_line": 37,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "Process completed with exit code 1."
+  },
+  {
+    "path": ".github",
+    "start_line": 1,
+    "end_line": 1,
+    "annotation_level": "notice",
+    "title": "",
+    "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\""
+  }
+]

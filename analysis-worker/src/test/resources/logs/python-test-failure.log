@@ -1,0 +1,193 @@
+﻿2026-10-30T13:29:46.4715561Z Current runner version: '2.338.0'
+2026-10-30T13:29:46.4739354Z ##[group]Runner Image Provisioner
+2026-10-30T13:29:46.4740129Z Hosted Compute Agent
+2026-10-30T13:29:46.4740639Z Version: 20261021.618
+2026-10-30T13:29:46.4741276Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-30T13:29:46.4741928Z Build Date: 2026-10-21T00:45:21Z
+2026-10-30T13:29:46.4742552Z Worker ID: {b5c64f43-225f-47f0-99f7-cc9cee107e80}
+2026-10-30T13:29:46.4743194Z Region: westus3
+2026-10-30T13:29:46.4743726Z Cloud: Azure
+2026-10-30T13:29:46.4744235Z ##[endgroup]
+2026-10-30T13:29:46.4745595Z ##[group]Operating System
+2026-10-30T13:29:46.4746188Z Ubuntu
+2026-10-30T13:29:46.4746666Z 26.04.1
+2026-10-30T13:29:46.4747148Z LTS
+2026-10-30T13:29:46.4747617Z ##[endgroup]
+2026-10-30T13:29:46.4748105Z ##[group]Runner Image
+2026-10-30T13:29:46.4748909Z Image: ubuntu-26.04
+2026-10-30T13:29:46.4749523Z Version: 20261025.179.1
+2026-10-30T13:29:46.4750641Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261025.179/images/ubuntu/Ubuntu2604-Readme.md
+2026-10-30T13:29:46.4752050Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261025.179
+2026-10-30T13:29:46.4752879Z ##[endgroup]
+2026-10-30T13:29:46.4753913Z ##[group]GITHUB_TOKEN Permissions
+2026-10-30T13:29:46.4755891Z Contents: read
+2026-10-30T13:29:46.4756440Z Metadata: read
+2026-10-30T13:29:46.4756938Z ##[endgroup]
+2026-10-30T13:29:46.4759527Z Secret source: Actions
+2026-10-30T13:29:46.4760400Z Cache mode: write
+2026-10-30T13:29:46.4761406Z Prepare workflow directory
+2026-10-30T13:29:46.5320078Z Prepare all required actions
+2026-10-30T13:29:46.5367790Z Getting action download info
+2026-10-30T13:29:46.8514628Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-30T13:29:46.9184721Z Download action repository 'actions/setup-java@v6' (SHA:b843ebf9b913146b38da2eaa7aeddf76074ae1ad)
+2026-10-30T13:29:47.6168231Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-30T13:29:47.6649067Z Download action repository 'actions/setup-python@v7' (SHA:6d4fd22b20465ccc0f7354476588e8df7c9ca0e0)
+2026-10-30T13:29:48.4100281Z Complete job name: python-test-failure
+2026-10-30T13:29:48.4954922Z ##[group]Run actions/checkout@v7
+2026-10-30T13:29:48.4956410Z with:
+2026-10-30T13:29:48.4957479Z   repository: Raju6302/ci-failure-assistant
+2026-10-30T13:29:48.4965743Z   token: ***
+2026-10-30T13:29:48.4966677Z   ssh-strict: true
+2026-10-30T13:29:48.4967699Z   ssh-user: git
+2026-10-30T13:29:48.4968754Z   persist-credentials: true
+2026-10-30T13:29:48.4969818Z   clean: true
+2026-10-30T13:29:48.4970796Z   sparse-checkout-cone-mode: true
+2026-10-30T13:29:48.4971896Z   fetch-depth: 1
+2026-10-30T13:29:48.4972854Z   fetch-tags: false
+2026-10-30T13:29:48.4973810Z   show-progress: true
+2026-10-30T13:29:48.4974810Z   lfs: false
+2026-10-30T13:29:48.4975743Z   submodules: false
+2026-10-30T13:29:48.4976731Z   set-safe-directory: true
+2026-10-30T13:29:48.4977880Z   allow-unsafe-pr-checkout: false
+2026-10-30T13:29:48.4979489Z ##[endgroup]
+2026-10-30T13:29:48.9110015Z Syncing repository: Raju6302/ci-failure-assistant
+2026-10-30T13:29:48.9113906Z ##[group]Getting Git version info
+2026-10-30T13:29:48.9116036Z Working directory is '/home/runner/work/ci-failure-assistant/ci-failure-assistant'
+2026-10-30T13:29:48.9119177Z [command]/usr/bin/git version
+2026-10-30T13:29:48.9155808Z git version 2.56.0
+2026-10-30T13:29:48.9177851Z ##[endgroup]
+2026-10-30T13:29:48.9190217Z Temporarily overriding HOME='/home/runner/work/_temp/dd0ee01a-c08e-406a-97ef-65c4bfada7ca' before making global git config changes
+2026-10-30T13:29:48.9195662Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T13:29:48.9202141Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ci-failure-assistant/ci-failure-assistant
+2026-10-30T13:29:48.9252863Z Deleting the contents of '/home/runner/work/ci-failure-assistant/ci-failure-assistant'
+2026-10-30T13:29:48.9257678Z ##[group]Determining repository object format
+2026-10-30T13:29:48.9261653Z ##[endgroup]
+2026-10-30T13:29:48.9264568Z ##[group]Initializing the repository
+2026-10-30T13:29:48.9268781Z [command]/usr/bin/git init /home/runner/work/ci-failure-assistant/ci-failure-assistant
+2026-10-30T13:29:48.9352772Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-30T13:29:48.9354929Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-30T13:29:48.9356983Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-30T13:29:48.9358864Z hint: call:
+2026-10-30T13:29:48.9359734Z hint:
+2026-10-30T13:29:48.9360741Z hint: 	git config --global init.defaultBranch <name>
+2026-10-30T13:29:48.9362147Z hint:
+2026-10-30T13:29:48.9363317Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-30T13:29:48.9366345Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-30T13:29:48.9368155Z hint:
+2026-10-30T13:29:48.9369345Z hint: 	git branch -m <name>
+2026-10-30T13:29:48.9370998Z hint:
+2026-10-30T13:29:48.9372428Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-30T13:29:48.9374619Z Initialized empty Git repository in /home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/
+2026-10-30T13:29:48.9383454Z [command]/usr/bin/git remote add origin https://github.com/Raju6302/ci-failure-assistant
+2026-10-30T13:29:48.9424845Z ##[endgroup]
+2026-10-30T13:29:48.9427156Z ##[group]Disabling automatic garbage collection
+2026-10-30T13:29:48.9428781Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T13:29:48.9462043Z ##[endgroup]
+2026-10-30T13:29:48.9464776Z ##[group]Setting up auth
+2026-10-30T13:29:48.9466704Z Removing SSH command configuration
+2026-10-30T13:29:48.9469587Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T13:29:48.9503111Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T13:29:48.9876920Z Removing HTTP extra header
+2026-10-30T13:29:48.9882472Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T13:29:48.9911477Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T13:29:49.0123751Z Removing includeIf entries pointing to credentials config files
+2026-10-30T13:29:49.0128388Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T13:29:49.0164804Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T13:29:49.0378927Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T13:29:49.0413459Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path /home/runner/work/_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:49.0438879Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:49.0468708Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:49.0493593Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:49.0517860Z ##[endgroup]
+2026-10-30T13:29:49.0519929Z ##[group]Fetching the repository
+2026-10-30T13:29:49.0523659Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ac81791f9c7df2781f99465b3f25f5ce2e406817:refs/remotes/origin/main
+2026-10-30T13:29:49.5789615Z From https://github.com/Raju6302/ci-failure-assistant
+2026-10-30T13:29:49.5790335Z  * [new ref]         ac81791f9c7df2781f99465b3f25f5ce2e406817 -> origin/main
+2026-10-30T13:29:49.5799733Z [command]/usr/bin/git branch --list --remote origin/main
+2026-10-30T13:29:49.5821906Z   origin/main
+2026-10-30T13:29:49.5829464Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-10-30T13:29:49.5848168Z ac81791f9c7df2781f99465b3f25f5ce2e406817
+2026-10-30T13:29:49.5852589Z ##[endgroup]
+2026-10-30T13:29:49.5853726Z ##[group]Determining the checkout info
+2026-10-30T13:29:49.5854804Z ##[endgroup]
+2026-10-30T13:29:49.5858243Z [command]/usr/bin/git sparse-checkout disable
+2026-10-30T13:29:49.5900563Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-30T13:29:49.5924543Z ##[group]Checking out the ref
+2026-10-30T13:29:49.5928119Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-30T13:29:49.6036459Z Switched to a new branch 'main'
+2026-10-30T13:29:49.6040849Z branch 'main' set up to track 'origin/main'.
+2026-10-30T13:29:49.6046518Z ##[endgroup]
+2026-10-30T13:29:49.6083274Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T13:29:49.6104353Z ac81791f9c7df2781f99465b3f25f5ce2e406817
+2026-10-30T13:29:49.6392926Z ##[group]Run actions/setup-python@v7
+2026-10-30T13:29:49.6393394Z with:
+2026-10-30T13:29:49.6393725Z   python-version: 3.13
+2026-10-30T13:29:49.6394125Z   check-latest: false
+2026-10-30T13:29:49.6397107Z   token: ***
+2026-10-30T13:29:49.6397563Z   mirror: https://raw.githubusercontent.com/actions/python-versions/main
+2026-10-30T13:29:49.6398120Z   update-environment: true
+2026-10-30T13:29:49.6398703Z   allow-prereleases: false
+2026-10-30T13:29:49.6399145Z   freethreaded: false
+2026-10-30T13:29:49.6399519Z ##[endgroup]
+2026-10-30T13:29:49.7546297Z ##[group]Installed versions
+2026-10-30T13:29:49.7636156Z Successfully set up CPython (3.13.17)
+2026-10-30T13:29:49.7637294Z ##[endgroup]
+2026-10-30T13:29:49.7793862Z ##[group]Run pip install -q -r requirements.txt && pytest -q
+2026-10-30T13:29:49.7794645Z [36;1mpip install -q -r requirements.txt && pytest -q[0m
+2026-10-30T13:29:49.7842454Z shell: /usr/bin/bash -e {0}
+2026-10-30T13:29:49.7843248Z env:
+2026-10-30T13:29:49.7843885Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.17/x64
+2026-10-30T13:29:49.7844932Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.17/x64/lib/pkgconfig
+2026-10-30T13:29:49.7845887Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.17/x64
+2026-10-30T13:29:49.7846852Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.17/x64
+2026-10-30T13:29:49.7847778Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.17/x64
+2026-10-30T13:29:49.7848905Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.17/x64/lib
+2026-10-30T13:29:49.7849771Z ##[endgroup]
+2026-10-30T13:29:52.1124279Z .F                                                                       [100%]
+2026-10-30T13:29:52.1125461Z =================================== FAILURES ===================================
+2026-10-30T13:29:52.1126735Z ____________________________ test_hours_and_minutes ____________________________
+2026-10-30T13:29:52.1127244Z 
+2026-10-30T13:29:52.1127445Z     def test_hours_and_minutes():
+2026-10-30T13:29:52.1128085Z >       assert parse_duration("1h30m") == 5400
+2026-10-30T13:29:52.1128817Z E       AssertionError: assert 31 == 5400
+2026-10-30T13:29:52.1129342Z E        +  where 31 = parse_duration('1h30m')
+2026-10-30T13:29:52.1129694Z 
+2026-10-30T13:29:52.1129905Z test_durations.py:9: AssertionError
+2026-10-30T13:29:52.1130498Z =========================== short test summary info ============================
+2026-10-30T13:29:52.1131425Z FAILED test_durations.py::test_hours_and_minutes - AssertionError: assert 31 == 5400
+2026-10-30T13:29:52.1132627Z  +  where 31 = parse_duration('1h30m')
+2026-10-30T13:29:52.1133114Z 1 failed, 1 passed in 0.01s
+2026-10-30T13:29:52.1356615Z ##[error]Process completed with exit code 1.
+2026-10-30T13:29:52.1496981Z Post job cleanup.
+2026-10-30T13:29:52.2402835Z [command]/usr/bin/git version
+2026-10-30T13:29:52.2453932Z git version 2.56.0
+2026-10-30T13:29:52.2489798Z Temporarily overriding HOME='/home/runner/work/_temp/d394ea92-07f1-43ec-88e3-71217b389ba7' before making global git config changes
+2026-10-30T13:29:52.2491358Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T13:29:52.2495745Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ci-failure-assistant/ci-failure-assistant
+2026-10-30T13:29:52.2525294Z Removing SSH command configuration
+2026-10-30T13:29:52.2531238Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T13:29:52.2564904Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T13:29:52.2796222Z Removing HTTP extra header
+2026-10-30T13:29:52.2802808Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T13:29:52.2828166Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T13:29:52.3078077Z Removing includeIf entries pointing to credentials config files
+2026-10-30T13:29:52.3084034Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T13:29:52.3105584Z includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path
+2026-10-30T13:29:52.3107209Z includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path
+2026-10-30T13:29:52.3108685Z includeif.gitdir:/github/workspace/.git.path
+2026-10-30T13:29:52.3109700Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-30T13:29:52.3119070Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path
+2026-10-30T13:29:52.3137543Z /home/runner/work/_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:52.3149302Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-777b1752\-1345\-467c\-9a65\-17c1e13a0fae\.config
+2026-10-30T13:29:52.3189511Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path
+2026-10-30T13:29:52.3220104Z /home/runner/work/_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:52.3223760Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-777b1752\-1345\-467c\-9a65\-17c1e13a0fae\.config
+2026-10-30T13:29:52.3251136Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-30T13:29:52.3269009Z /github/runner_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:52.3280819Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-777b1752\-1345\-467c\-9a65\-17c1e13a0fae\.config
+2026-10-30T13:29:52.3309132Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-30T13:29:52.3326059Z /github/runner_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config
+2026-10-30T13:29:52.3332218Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-777b1752\-1345\-467c\-9a65\-17c1e13a0fae\.config
+2026-10-30T13:29:52.3363928Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T13:29:52.3576361Z Removing credentials config '/home/runner/work/_temp/git-credentials-777b1752-1345-467c-9a65-17c1e13a0fae.config'
+2026-10-30T13:29:52.3736935Z Cleaning up orphan processes

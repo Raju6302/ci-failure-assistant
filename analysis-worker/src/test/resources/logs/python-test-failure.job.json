@@ -1,0 +1,53 @@
+{
+  "id": 124089587685,
+  "name": "python-test-failure",
+  "status": "completed",
+  "conclusion": "failure",
+  "steps": [
+    {
+      "number": 1,
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "number": 2,
+      "name": "Run actions/checkout@v7",
+      "conclusion": "success"
+    },
+    {
+      "number": 3,
+      "name": "Run actions/setup-java@v6",
+      "conclusion": "skipped"
+    },
+    {
+      "number": 4,
+      "name": "Run actions/setup-node@v7",
+      "conclusion": "skipped"
+    },
+    {
+      "number": 5,
+      "name": "Run actions/setup-python@v7",
+      "conclusion": "success"
+    },
+    {
+      "number": 6,
+      "name": "Build and test",
+      "conclusion": "failure"
+    },
+    {
+      "number": 11,
+      "name": "Post Run actions/setup-python@v7",
+      "conclusion": "skipped"
+    },
+    {
+      "number": 12,
+      "name": "Post Run actions/checkout@v7",
+      "conclusion": "success"
+    },
+    {
+      "number": 13,
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ]
+}

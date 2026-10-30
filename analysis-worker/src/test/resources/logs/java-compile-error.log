@@ -1,0 +1,248 @@
+﻿2026-10-30T13:29:46.1461365Z Current runner version: '2.338.0'
+2026-10-30T13:29:46.1477766Z ##[group]Runner Image Provisioner
+2026-10-30T13:29:46.1478308Z Hosted Compute Agent
+2026-10-30T13:29:46.1478726Z Version: 20261021.618
+2026-10-30T13:29:46.1479113Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-30T13:29:46.1479528Z Build Date: 2026-10-21T00:45:21Z
+2026-10-30T13:29:46.1480016Z Worker ID: {ad8f6642-9680-45fc-97a5-f1ffd7f14055}
+2026-10-30T13:29:46.1480435Z Region: centralus
+2026-10-30T13:29:46.1480794Z Cloud: Azure
+2026-10-30T13:29:46.1481164Z ##[endgroup]
+2026-10-30T13:29:46.1481945Z ##[group]Operating System
+2026-10-30T13:29:46.1482390Z Ubuntu
+2026-10-30T13:29:46.1482707Z 26.04.1
+2026-10-30T13:29:46.1483042Z LTS
+2026-10-30T13:29:46.1483366Z ##[endgroup]
+2026-10-30T13:29:46.1483699Z ##[group]Runner Image
+2026-10-30T13:29:46.1484116Z Image: ubuntu-26.04
+2026-10-30T13:29:46.1484463Z Version: 20261025.179.1
+2026-10-30T13:29:46.1485334Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261025.179/images/ubuntu/Ubuntu2604-Readme.md
+2026-10-30T13:29:46.1486208Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261025.179
+2026-10-30T13:29:46.1486831Z ##[endgroup]
+2026-10-30T13:29:46.1487650Z ##[group]GITHUB_TOKEN Permissions
+2026-10-30T13:29:46.1488838Z Contents: read
+2026-10-30T13:29:46.1489211Z Metadata: read
+2026-10-30T13:29:46.1489622Z ##[endgroup]
+2026-10-30T13:29:46.1491053Z Secret source: Actions
+2026-10-30T13:29:46.1491824Z Cache mode: write
+2026-10-30T13:29:46.1492271Z Prepare workflow directory
+2026-10-30T13:29:46.1828450Z Prepare all required actions
+2026-10-30T13:29:46.1860768Z Getting action download info
+2026-10-30T13:29:46.4498308Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-30T13:29:46.5410819Z Download action repository 'actions/setup-java@v6' (SHA:b843ebf9b913146b38da2eaa7aeddf76074ae1ad)
+2026-10-30T13:29:47.1477547Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-30T13:29:47.2189314Z Download action repository 'actions/setup-python@v7' (SHA:6d4fd22b20465ccc0f7354476588e8df7c9ca0e0)
+2026-10-30T13:29:47.7619549Z Complete job name: java-compile-error
+2026-10-30T13:29:47.8186808Z ##[group]Run actions/checkout@v7
+2026-10-30T13:29:47.8187867Z with:
+2026-10-30T13:29:47.8188465Z   repository: Raju6302/ci-failure-assistant
+2026-10-30T13:29:47.8193468Z   token: ***
+2026-10-30T13:29:47.8194028Z   ssh-strict: true
+2026-10-30T13:29:47.8194640Z   ssh-user: git
+2026-10-30T13:29:47.8195258Z   persist-credentials: true
+2026-10-30T13:29:47.8195882Z   clean: true
+2026-10-30T13:29:47.8196608Z   sparse-checkout-cone-mode: true
+2026-10-30T13:29:47.8197772Z   fetch-depth: 1
+2026-10-30T13:29:47.8198557Z   fetch-tags: false
+2026-10-30T13:29:47.8199177Z   show-progress: true
+2026-10-30T13:29:47.8199757Z   lfs: false
+2026-10-30T13:29:47.8200277Z   submodules: false
+2026-10-30T13:29:47.8200906Z   set-safe-directory: true
+2026-10-30T13:29:47.8201703Z   allow-unsafe-pr-checkout: false
+2026-10-30T13:29:47.8202602Z ##[endgroup]
+2026-10-30T13:29:48.0540882Z Syncing repository: Raju6302/ci-failure-assistant
+2026-10-30T13:29:48.0543659Z ##[group]Getting Git version info
+2026-10-30T13:29:48.0545033Z Working directory is '/home/runner/work/ci-failure-assistant/ci-failure-assistant'
+2026-10-30T13:29:48.0546758Z [command]/usr/bin/git version
+2026-10-30T13:29:48.0566896Z git version 2.56.0
+2026-10-30T13:29:48.0580838Z ##[endgroup]
+2026-10-30T13:29:48.0588047Z Temporarily overriding HOME='/home/runner/work/_temp/2a4feb3e-bee9-44cf-b78b-80db5d7a378f' before making global git config changes
+2026-10-30T13:29:48.0589972Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T13:29:48.0591830Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ci-failure-assistant/ci-failure-assistant
+2026-10-30T13:29:48.0654844Z Deleting the contents of '/home/runner/work/ci-failure-assistant/ci-failure-assistant'
+2026-10-30T13:29:48.0656743Z ##[group]Determining repository object format
+2026-10-30T13:29:48.0658680Z ##[endgroup]
+2026-10-30T13:29:48.0660169Z ##[group]Initializing the repository
+2026-10-30T13:29:48.0661574Z [command]/usr/bin/git init /home/runner/work/ci-failure-assistant/ci-failure-assistant
+2026-10-30T13:29:48.0762020Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-30T13:29:48.0763402Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-30T13:29:48.0765246Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-30T13:29:48.0766316Z hint: call:
+2026-10-30T13:29:48.0766931Z hint:
+2026-10-30T13:29:48.0767868Z hint: 	git config --global init.defaultBranch <name>
+2026-10-30T13:29:48.0768799Z hint:
+2026-10-30T13:29:48.0769669Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-30T13:29:48.0770928Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-30T13:29:48.0771920Z hint:
+2026-10-30T13:29:48.0772602Z hint: 	git branch -m <name>
+2026-10-30T13:29:48.0773418Z hint:
+2026-10-30T13:29:48.0774284Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-30T13:29:48.0776183Z Initialized empty Git repository in /home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/
+2026-10-30T13:29:48.0787663Z [command]/usr/bin/git remote add origin https://github.com/Raju6302/ci-failure-assistant
+2026-10-30T13:29:48.0833093Z ##[endgroup]
+2026-10-30T13:29:48.0834512Z ##[group]Disabling automatic garbage collection
+2026-10-30T13:29:48.0835834Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T13:29:48.0863372Z ##[endgroup]
+2026-10-30T13:29:48.0864998Z ##[group]Setting up auth
+2026-10-30T13:29:48.0866026Z Removing SSH command configuration
+2026-10-30T13:29:48.0867629Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T13:29:48.0900544Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T13:29:48.1289700Z Removing HTTP extra header
+2026-10-30T13:29:48.1295537Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T13:29:48.1324076Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T13:29:48.1534980Z Removing includeIf entries pointing to credentials config files
+2026-10-30T13:29:48.1538774Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T13:29:48.1570944Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T13:29:48.1782582Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T13:29:48.1815467Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path /home/runner/work/_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:48.1844804Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:48.1875410Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:48.1903884Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:48.1989073Z ##[endgroup]
+2026-10-30T13:29:48.1991154Z ##[group]Fetching the repository
+2026-10-30T13:29:48.1993323Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ac81791f9c7df2781f99465b3f25f5ce2e406817:refs/remotes/origin/main
+2026-10-30T13:29:48.5838821Z From https://github.com/Raju6302/ci-failure-assistant
+2026-10-30T13:29:48.5840225Z  * [new ref]         ac81791f9c7df2781f99465b3f25f5ce2e406817 -> origin/main
+2026-10-30T13:29:48.5848718Z [command]/usr/bin/git branch --list --remote origin/main
+2026-10-30T13:29:48.5870749Z   origin/main
+2026-10-30T13:29:48.5876825Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-10-30T13:29:48.5897097Z ac81791f9c7df2781f99465b3f25f5ce2e406817
+2026-10-30T13:29:48.5901093Z ##[endgroup]
+2026-10-30T13:29:48.5902048Z ##[group]Determining the checkout info
+2026-10-30T13:29:48.5902960Z ##[endgroup]
+2026-10-30T13:29:48.5903720Z [command]/usr/bin/git sparse-checkout disable
+2026-10-30T13:29:48.5945581Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-30T13:29:48.5972125Z ##[group]Checking out the ref
+2026-10-30T13:29:48.5974423Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-30T13:29:48.6104091Z Switched to a new branch 'main'
+2026-10-30T13:29:48.6108637Z branch 'main' set up to track 'origin/main'.
+2026-10-30T13:29:48.6113459Z ##[endgroup]
+2026-10-30T13:29:48.6150186Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T13:29:48.6172729Z ac81791f9c7df2781f99465b3f25f5ce2e406817
+2026-10-30T13:29:48.6502695Z ##[group]Run actions/setup-java@v6
+2026-10-30T13:29:48.6503276Z with:
+2026-10-30T13:29:48.6503732Z   distribution: temurin
+2026-10-30T13:29:48.6504238Z   java-version: 21
+2026-10-30T13:29:48.6504719Z   java-package: jdk
+2026-10-30T13:29:48.6505206Z   check-latest: false
+2026-10-30T13:29:48.6505712Z   force-download: false
+2026-10-30T13:29:48.6506226Z   set-default: true
+2026-10-30T13:29:48.6506703Z   server-id: github
+2026-10-30T13:29:48.6507243Z   mvn-repositories-include-central: true
+2026-10-30T13:29:48.6508037Z   mvn-repositories-prioritize-central: true
+2026-10-30T13:29:48.6508692Z   overwrite-settings: true
+2026-10-30T13:29:48.6509233Z   cache-read-only: false
+2026-10-30T13:29:48.6509768Z   job-status: success
+2026-10-30T13:29:48.6514242Z   token: ***
+2026-10-30T13:29:48.6514741Z   show-download-progress: false
+2026-10-30T13:29:48.6515308Z   problem-matcher: true
+2026-10-30T13:29:48.6515817Z ##[endgroup]
+2026-10-30T13:29:48.7035889Z ##[group]Installed distributions
+2026-10-30T13:29:48.7091254Z Resolved Java 21.0.13+9 from tool-cache
+2026-10-30T13:29:48.7092017Z Setting Java 21.0.13+9 as the default
+2026-10-30T13:29:48.7095318Z 
+2026-10-30T13:29:48.7095638Z Java configuration:
+2026-10-30T13:29:48.7096394Z   Distribution: temurin
+2026-10-30T13:29:48.7097098Z   Version: 21.0.13+9
+2026-10-30T13:29:48.7098021Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-10-30T13:29:48.7098775Z 
+2026-10-30T13:29:48.7099312Z ##[endgroup]
+2026-10-30T13:29:48.7124650Z Creating settings.xml with server-id: github
+2026-10-30T13:29:48.7125469Z Creating toolchains.xml for JDK version 21 from temurin
+2026-10-30T13:29:48.7126220Z Writing to /home/runner/.m2/settings.xml
+2026-10-30T13:29:48.7126887Z Writing to /home/runner/.m2/toolchains.xml
+2026-10-30T13:29:48.7129474Z Configured MAVEN_ARGS to include -ntp to suppress Maven transfer progress logs. Set 'show-download-progress: true' to keep the download progress output.
+2026-10-30T13:29:48.7315531Z ##[group]Run mvn -B verify
+2026-10-30T13:29:48.7316517Z [36;1mmvn -B verify[0m
+2026-10-30T13:29:48.7352014Z shell: /usr/bin/bash -e {0}
+2026-10-30T13:29:48.7352599Z env:
+2026-10-30T13:29:48.7353256Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-10-30T13:29:48.7354284Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.13-9/x64
+2026-10-30T13:29:48.7355116Z   MAVEN_ARGS: -ntp
+2026-10-30T13:29:48.7355579Z ##[endgroup]
+2026-10-30T13:29:51.0827323Z [INFO] Scanning for projects...
+2026-10-30T13:29:51.1350835Z [INFO] 
+2026-10-30T13:29:51.1351461Z [INFO] ---------------------< sandbox:java-compile-error >---------------------
+2026-10-30T13:29:51.1351940Z [INFO] Building java-compile-error 1.0.0
+2026-10-30T13:29:51.1352454Z [INFO]   from pom.xml
+2026-10-30T13:29:51.1352868Z [INFO] --------------------------------[ jar ]---------------------------------
+2026-10-30T13:29:54.2527826Z [INFO] 
+2026-10-30T13:29:54.2528687Z [INFO] --- resources:3.4.0:resources (default-resources) @ java-compile-error ---
+2026-10-30T13:29:55.5938511Z [INFO] skip non existing resourceDirectory /home/runner/work/ci-failure-assistant/ci-failure-assistant/sandbox-repos/java-compile-error/src/main/resources
+2026-10-30T13:29:55.5945010Z [INFO] 
+2026-10-30T13:29:55.5945436Z [INFO] --- compiler:3.15.0:compile (default-compile) @ java-compile-error ---
+2026-10-30T13:29:57.4798661Z [INFO] Recompiling the module because of changed source code.
+2026-10-30T13:29:57.4888139Z [INFO] Compiling 2 source files with javac [debug release 21] to target/classes
+2026-10-30T13:29:58.1436566Z [INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+2026-10-30T13:29:58.1438576Z [INFO] -------------------------------------------------------------
+2026-10-30T13:29:58.1445646Z [ERROR] COMPILATION ERROR : 
+2026-10-30T13:29:58.1446171Z [INFO] -------------------------------------------------------------
+2026-10-30T13:29:58.1476758Z ##[error][ERROR] /home/runner/work/ci-failure-assistant/ci-failure-assistant/sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java:[9,34] cannot find symbol
+2026-10-30T13:29:58.1484670Z   symbol:   method price()
+2026-10-30T13:29:58.1485024Z   location: variable item of type shop.Order.LineItem
+2026-10-30T13:29:58.1486437Z ##[error][ERROR] /home/runner/work/ci-failure-assistant/ci-failure-assistant/sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java:[10,42] incompatible types: invalid method reference
+2026-10-30T13:29:58.1487905Z     no suitable method found for add(java.lang.Object,java.lang.Object)
+2026-10-30T13:29:58.1488438Z         method java.math.BigDecimal.add(java.math.BigDecimal,java.math.MathContext) is not applicable
+2026-10-30T13:29:58.1489018Z           (argument mismatch; java.lang.Object cannot be converted to java.math.BigDecimal)
+2026-10-30T13:29:58.1489446Z         method java.math.BigDecimal.add(long,long) is not applicable
+2026-10-30T13:29:58.1489733Z           (argument mismatch; java.lang.Object cannot be converted to long)
+2026-10-30T13:29:58.1489964Z [INFO] 2 errors 
+2026-10-30T13:29:58.1490168Z [INFO] -------------------------------------------------------------
+2026-10-30T13:29:58.1490524Z [INFO] ------------------------------------------------------------------------
+2026-10-30T13:29:58.1490917Z [INFO] BUILD FAILURE
+2026-10-30T13:29:58.1491291Z [INFO] ------------------------------------------------------------------------
+2026-10-30T13:29:58.1491649Z [INFO] Total time:  7.086 s
+2026-10-30T13:29:58.1491901Z [INFO] Finished at: 2026-10-30T13:29:58Z
+2026-10-30T13:29:58.1492223Z [INFO] ------------------------------------------------------------------------
+2026-10-30T13:29:58.1492906Z [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.15.0:compile (default-compile) on project java-compile-error: Compilation failure: Compilation failure: 
+2026-10-30T13:29:58.1494212Z ##[error][ERROR] /home/runner/work/ci-failure-assistant/ci-failure-assistant/sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java:[9,34] cannot find symbol
+2026-10-30T13:29:58.1495018Z [ERROR]   symbol:   method price()
+2026-10-30T13:29:58.1495365Z [ERROR]   location: variable item of type shop.Order.LineItem
+2026-10-30T13:29:58.1496754Z ##[error][ERROR] /home/runner/work/ci-failure-assistant/ci-failure-assistant/sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java:[10,42] incompatible types: invalid method reference
+2026-10-30T13:29:58.1498146Z [ERROR]     no suitable method found for add(java.lang.Object,java.lang.Object)
+2026-10-30T13:29:58.1499109Z [ERROR]         method java.math.BigDecimal.add(java.math.BigDecimal,java.math.MathContext) is not applicable
+2026-10-30T13:29:58.1499908Z [ERROR]           (argument mismatch; java.lang.Object cannot be converted to java.math.BigDecimal)
+2026-10-30T13:29:58.1500526Z [ERROR]         method java.math.BigDecimal.add(long,long) is not applicable
+2026-10-30T13:29:58.1501136Z [ERROR]           (argument mismatch; java.lang.Object cannot be converted to long)
+2026-10-30T13:29:58.1501477Z [ERROR] -> [Help 1]
+2026-10-30T13:29:58.1501662Z [ERROR] 
+2026-10-30T13:29:58.1501981Z [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+2026-10-30T13:29:58.1502431Z [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+2026-10-30T13:29:58.1502741Z [ERROR] 
+2026-10-30T13:29:58.1503145Z [ERROR] For more information about the errors and possible solutions, please read the following articles:
+2026-10-30T13:29:58.1503733Z [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+2026-10-30T13:29:58.1653869Z ##[error]Process completed with exit code 1.
+2026-10-30T13:29:58.1761057Z Post job cleanup.
+2026-10-30T13:29:58.2438196Z Post job cleanup.
+2026-10-30T13:29:58.3040997Z [command]/usr/bin/git version
+2026-10-30T13:29:58.3081116Z git version 2.56.0
+2026-10-30T13:29:58.3104008Z Temporarily overriding HOME='/home/runner/work/_temp/84502f30-ab09-4bc2-8eee-0d4b22cef72c' before making global git config changes
+2026-10-30T13:29:58.3105115Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T13:29:58.3107525Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ci-failure-assistant/ci-failure-assistant
+2026-10-30T13:29:58.3135481Z Removing SSH command configuration
+2026-10-30T13:29:58.3139396Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T13:29:58.3182058Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T13:29:58.3404235Z Removing HTTP extra header
+2026-10-30T13:29:58.3404887Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T13:29:58.3434858Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T13:29:58.3671322Z Removing includeIf entries pointing to credentials config files
+2026-10-30T13:29:58.3676206Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T13:29:58.3700183Z includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path
+2026-10-30T13:29:58.3701030Z includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path
+2026-10-30T13:29:58.3701700Z includeif.gitdir:/github/workspace/.git.path
+2026-10-30T13:29:58.3702187Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-30T13:29:58.3706429Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path
+2026-10-30T13:29:58.3728186Z /home/runner/work/_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:58.3737981Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-b04f8381\-1c10\-44ce\-8967\-44688a194572\.config
+2026-10-30T13:29:58.3795097Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path
+2026-10-30T13:29:58.3815622Z /home/runner/work/_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:58.3822376Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/ci-failure-assistant/ci-failure-assistant/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-b04f8381\-1c10\-44ce\-8967\-44688a194572\.config
+2026-10-30T13:29:58.3849303Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-30T13:29:58.3868365Z /github/runner_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:58.3873905Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-b04f8381\-1c10\-44ce\-8967\-44688a194572\.config
+2026-10-30T13:29:58.3900678Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-30T13:29:58.3918999Z /github/runner_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config
+2026-10-30T13:29:58.3923926Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-b04f8381\-1c10\-44ce\-8967\-44688a194572\.config
+2026-10-30T13:29:58.3949958Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T13:29:58.4156956Z Removing credentials config '/home/runner/work/_temp/git-credentials-b04f8381-1c10-44ce-8967-44688a194572.config'
+2026-10-30T13:29:58.4282221Z Cleaning up orphan processes

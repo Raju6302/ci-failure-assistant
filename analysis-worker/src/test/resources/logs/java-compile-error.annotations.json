@@ -1,0 +1,50 @@
+[
+  {
+    "path": ".github",
+    "start_line": 60,
+    "end_line": 60,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "Process completed with exit code 1."
+  },
+  {
+    "path": "sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java",
+    "start_line": 10,
+    "end_line": 10,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "incompatible types: invalid method reference"
+  },
+  {
+    "path": "sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java",
+    "start_line": 9,
+    "end_line": 9,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "cannot find symbol"
+  },
+  {
+    "path": "sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java",
+    "start_line": 10,
+    "end_line": 10,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "incompatible types: invalid method reference"
+  },
+  {
+    "path": "sandbox-repos/java-compile-error/src/main/java/shop/InvoiceService.java",
+    "start_line": 9,
+    "end_line": 9,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "cannot find symbol"
+  },
+  {
+    "path": ".github",
+    "start_line": 1,
+    "end_line": 1,
+    "annotation_level": "notice",
+    "title": "",
+    "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\""
+  }
+]
