@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: mcp-github-server
+
+server:
+  port: ${PORT:8082}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
