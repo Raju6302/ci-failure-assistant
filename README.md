@@ -9,10 +9,10 @@ When a GitHub Actions run fails, the assistant fetches the logs, finds the code 
 and checks whether the same failure has happened before. It then posts a short diagnosis
 on the pull request: what broke, why, the evidence, and a suggested fix.
 
-> **Status:** Phases 0, 1 and 3 of 11 are done. Failed runs are received, stored and their
-> logs fetched (with secrets removed), and an MCP server is ready to give the agent
-> read-only tools. Next up: log parsing and classification (Phase 2), then the AI agent.
-> See the full [roadmap](ROADMAP.md).
+> **Status:** Phases 0–5 of 11 are done: failed runs are received, their logs fetched (with
+> secrets removed) and classified, and a Claude agent diagnoses each failed job using MCP
+> tools and retrieved code. Next up: posting diagnoses on pull requests and learning from
+> feedback (Phase 6). See the full [roadmap](ROADMAP.md).
 
 ## Why
 
@@ -30,7 +30,7 @@ matching an error to code and to past fixes. An LLM with the right context can d
 ┌───────────────────┐  Redis Stream  ┌──────────────────────────┐   MCP   ┌──────────────────┐
 │   api-service     │ ─────────────► │    analysis-worker       │ ──────► │ mcp-github-server│──► GitHub API
 │ webhooks, REST    │                │ jobs + logs, redaction,  │         │ repo + log tools │
-│                   │                │ agent + RAG (Phase 4–5)  │         │                  │
+│                   │                │ Claude agent + RAG       │         │                  │
 └────────┬──────────┘                └────────────┬─────────────┘         └──────────────────┘
          │                                        │
          ▼                                        ▼
@@ -58,12 +58,23 @@ What works today:
    repeats can be grouped. Every sandbox failure gets its expected category except the
    flaky test, which one log can't tell apart from a real test failure (that needs run
    history, Phase 7). See [log analysis](docs/log-analysis.md).
-4. **dashboard** lists failed runs with their failure category, and shows each job's
-   error, log excerpt and code references, refreshing every 5 seconds.
-5. **sandbox-repos** holds eight small projects that fail on purpose (compile error,
+4. **Diagnosis agent:** for each failed job, Claude (Opus 5.5, via the official Anthropic
+   SDK) investigates with the MCP tools and submits a structured diagnosis: root cause,
+   category, confidence, evidence quoted with file and line, a suggested fix and an
+   optional patch. Tokens and cost are recorded. Without an API key, or if the model
+   can't be used, each job still gets a rule-based diagnosis. See
+   [diagnosis agent](docs/diagnosis-agent.md).
+5. **RAG:** at the failing commit, the repository is indexed (only changed files are
+   re-embedded, with a local model, so no extra API key) and the agent starts with the most
+   relevant code: vector + keyword search, boosted by the files the log points to. On the
+   sandbox scenarios, the file at fault is in the top 2 every time. Recurring failures are
+   recognized through a failure memory. See [retrieval](docs/rag.md).
+6. **dashboard** lists failed runs with their failure category and status, and shows each
+   job's error, log excerpt, code references and diagnosis, refreshing every 5 seconds.
+7. **sandbox-repos** holds eight small projects that fail on purpose (compile error,
    failing test, missing dependency, flaky test, Docker build, timeout…). The
    *Sandbox failures* workflow runs them on demand, so there are always real failures to test with.
-5. **mcp-github-server** offers the agent (Phase 4) six read-only MCP tools: commit diffs,
+8. **mcp-github-server** offers the agent six read-only MCP tools: commit diffs,
    files with line numbers, recent commits, code search, workflow files and sections of
    the stored, redacted job logs. It only reads repos that sent webhooks, never returns
    the eval answers in `evals/`, caps every result's size, and can require a shared bearer
@@ -77,7 +88,7 @@ or a plain **access token** for local development.
 Needs Docker. From the repo root:
 
 ```bash
-cp .env.example .env        # set GITHUB_WEBHOOK_SECRET, and GITHUB_TOKEN or the App settings
+cp .env.example .env        # set GITHUB_WEBHOOK_SECRET, GITHUB_TOKEN (or the App settings), ANTHROPIC_API_KEY
 docker compose -f infra/docker-compose.yml up --build
 ```
 
@@ -96,7 +107,7 @@ webhooks: see [local development](docs/local-development.md) and
 
 ```
 api-service/        webhooks, REST API, queue producer, relay
-analysis-worker/    queue consumer, GitHub ingestion, secret redaction, log analysis (agent + RAG later)
+analysis-worker/    queue stages: ingestion, redaction, log analysis; diagnosis agent; RAG
 mcp-github-server/  MCP tools for the agent: diffs, files, search, workflow files, logs
 github-client/      GitHub REST client: App/token auth, jobs, logs, annotations, commits, files, search, webhook signatures
 common/             shared status values, queue names and database migrations
@@ -109,7 +120,8 @@ docs/               setup guides and design decisions (ADRs)
 
 ## Tech stack
 
-Java 21 · Spring Boot 4 · Spring AI 2 (MCP server; agent from Phase 4) · PostgreSQL 17 + pgvector ·
+Java 21 · Spring Boot 4 · Anthropic Java SDK (Claude Opus 5.5) · MCP (Spring AI 2 server, MCP Java SDK
+client) · local ONNX embeddings · PostgreSQL 17 + pgvector ·
 Redis Streams · React 19 + TypeScript + Vite + Tailwind · JUnit + Testcontainers +
 WireMock · Vitest · Docker · GitHub Actions. AWS (ECS, RDS, SQS) arrives in Phase 9.
 

@@ -4,7 +4,7 @@ An AI agent that explains why a CI build failed and suggests a fix.
 
 When a GitHub Actions run fails, the assistant fetches the logs, finds the code related to the error, and checks whether the same failure has happened before. It then posts a short diagnosis to the pull request: what broke, why, the evidence, and a suggested fix.
 
-> **Progress:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · next: Phase 4 (AI diagnosis agent)
+> **Progress:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · Phase 3 ✅ · Phase 4 ✅ · Phase 5 ✅ · next: Phase 6 (GitHub output and feedback loop)
 
 ---
 
@@ -37,7 +37,7 @@ When a pipeline fails, developers open a log of 5,000+ lines, scroll to find the
         ▼
 ┌───────────────────┐  job queue   ┌──────────────────────────┐   MCP   ┌──────────────────┐
 │   api-service     │ ───────────► │    analysis-worker       │ ──────► │ mcp-github-server│──► GitHub API
-│ Spring Boot       │              │ Spring AI agent          │         │ tools: diff, file│
+│ Spring Boot       │              │ Claude agent (SDK)       │         │ tools: diff, file│
 │ webhooks, REST,   │              │ log parsing, RAG,        │         │ commits, search, │
 │ auth, settings    │              │ diagnosis, PR comments   │         │ workflow, logs   │
 └────────┬──────────┘              └────────────┬─────────────┘         └──────────────────┘
@@ -57,9 +57,9 @@ When a pipeline fails, developers open a log of 5,000+ lines, scroll to find the
 | Area | Choice |
 |---|---|
 | Backend | Java 21, Spring Boot 4, Maven multi-module |
-| AI | Spring AI 2 (ChatClient, tool calling, structured output); provider can be swapped, Claude by default |
+| AI | Official Anthropic Java SDK, Claude Opus 5.5; own tool-use loop with a strict `submit_diagnosis` tool ([ADR 4](docs/adr/0004-claude-sdk-agent-loop.md)) |
 | Tools | MCP server built with Spring AI's MCP server starter; the worker connects as an MCP client |
-| RAG | PostgreSQL + pgvector, hybrid search (keyword + vector), Spring AI `VectorStore` |
+| RAG | PostgreSQL + pgvector + full-text, local ONNX embeddings via Spring AI Transformers ([ADR 5](docs/adr/0005-rag-in-postgres-local-embeddings.md)) |
 | Queue | Redis Streams locally → AWS SQS in production |
 | Frontend | React, TypeScript, Vite, Tailwind, TanStack Query, Recharts |
 | Database | PostgreSQL 16, Flyway migrations |
@@ -152,22 +152,26 @@ Total estimate: **about 136 hours** across 11 phases. Each phase ends with somet
 **Done when:** the MCP server can be connected to any MCP client and its tools return correct data.
 
 ### Phase 4: AI diagnosis agent (18h)
-- [ ] Spring AI ChatClient connected to the MCP tools as an MCP client
-- [ ] System prompt and agent loop with a step limit and token budget
-- [ ] Structured output: `rootCause`, `category`, `confidence`, `evidence[]` (file and line references), `suggestedFix`, `patch?`
-- [ ] Retries, timeouts, and a fallback to a rule-based summary if the LLM fails
-- [ ] Track tokens, cost and latency per diagnosis
-- [ ] Diagnosis detail page in the dashboard
+- [x] Claude via the official Anthropic Java SDK (changed from Spring AI ChatClient, see [ADR 4](docs/adr/0004-claude-sdk-agent-loop.md)), with the MCP server's tools discovered at runtime
+- [x] System prompt (cached; treats logs and code as untrusted data) and agent loop with a step limit and token budget
+- [x] Structured output through a strict `submit_diagnosis` tool: `rootCause`, `category`, `confidence`, `evidence[]` (file and line references), `suggestedFix`, `patch`, validated before use
+- [x] Retries for temporary API errors, server-side refusal fallback, and a rule-based diagnosis when the agent can't be used
+- [x] Track tokens, cost and latency per diagnosis
+- [x] Diagnosis on the run detail page in the dashboard
+- [x] Second queue stage for diagnosis; a run is never diagnosed by two workers at once
+- [x] [Docs](docs/diagnosis-agent.md); tests run the real SDK against a scripted fake of the Messages API
 
 **Done when:** a sandbox failure produces a correct, evidence-backed diagnosis. (**Milestone M2: MVP**)
+The whole pipeline is tested end to end with a scripted model; a live run against the Claude API needs `ANTHROPIC_API_KEY`.
 
 ### Phase 5: RAG, with code context and failure memory (16h)
-- [ ] Code indexer: split code by file, class and method; create embeddings; store in pgvector
-- [ ] Incremental re-index on `push` webhooks (only changed files)
-- [ ] Hybrid retrieval (Postgres full-text + vector) with re-ranking
-- [ ] Failure memory: embed past failures with their confirmed fixes; retrieve similar ones
-- [ ] Add retrieved context to the agent ("this looks like failure #42, which was fixed by …")
-- [ ] Compare diagnosis quality with RAG versus without it, using the eval set
+- [x] Code indexer: chunks split at class/function declarations, embedded locally (ONNX), stored in pgvector
+- [x] Incremental re-index of changed files only (by content hash), at the failing commit before each diagnosis, from one archive download (instead of `push` webhooks: the index always matches the code that failed)
+- [x] Hybrid retrieval (Postgres full-text + vector, reciprocal rank fusion), re-ranked by the files the log points to and the source files of failing tests
+- [x] Failure memory: past failures found by error fingerprint, then by embedding similarity (confirmed fixes are added in Phase 6)
+- [x] Retrieved code and similar past failures added to the agent's first message
+- [x] Retrieval eval on the 8 sandbox scenarios: the file at fault is in the top 2 for all 8 (4 of 8 before the test-to-source and mentioned-file signals)
+- [ ] Compare the LLM's diagnosis quality with and without RAG: needs a Claude API key; moves to the Phase 8 eval suite
 
 **Done when:** repeat failures are recognized and diagnoses cite the right files more often.
 
