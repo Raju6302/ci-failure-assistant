@@ -61,9 +61,18 @@ services:
     build:
       context: ..
       args: { SERVICE: analysis-worker }
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/cifa
+      DATABASE_USER: cifa
+      DATABASE_PASSWORD: cifa
+      REDIS_HOST: redis
+      MCP_URL: http://mcp-github-server:8082/mcp
+      RAG_MODEL_CACHE_DIR: /models
     volumes:
       # GitHub App private key, if you use one: put it in ./secrets (git-ignored).
       - ../secrets:/run/secrets:ro
+      # The embedding model (~90 MB) is downloaded once and kept here.
+      - model-cache:/models
     healthcheck:
       <<: *health
       test: ["CMD", "curl", "-fs", "http://localhost:8081/actuator/health/readiness"]
@@ -92,3 +101,4 @@ services:
 
 volumes:
   postgres-data:
+  model-cache:
