@@ -244,13 +244,18 @@ The whole pipeline is tested end to end with a scripted model; a live run agains
 | 10. Hardening and release | 6 |
 | **Total** | **136** |
 
-## 10. Ideas after v1.0
+## 10. After v1.0
 
-- GitLab CI and Jenkins support (the ingestion and MCP layers are designed to be swapped)
-- Slack/Teams notifications
-- Self-hosted LLM option for private code
-- "Explain this flaky test" deep-dive mode
-- VS Code extension that shows the diagnosis next to the failing code
+| Feature | What it involves | Hours |
+|---|---|---|
+| GitLab CI and Jenkins support | Webhook receivers and log/job clients for both, plus their MCP tools (the ingestion and MCP layers are designed to be swapped); sandbox pipelines and tests for each | 25 |
+| VS Code extension | Shows a failure's diagnosis next to the failing code, with evidence links and one-click apply of the suggested patch | 25 |
+| Self-hosted LLM option | Run the agent against a self-hosted model for private code; provider abstraction, tool-calling adapter, and evals to compare quality with Claude | 15 |
+| Slack/Teams notifications | Post diagnoses to a channel, per-repo routing and quiet hours, and buttons for feedback | 10 |
+| "Explain this flaky test" mode | Use run history (Phase 7) to show when and how a test flakes, and have the agent explain the likely race or ordering problem | 10 |
+| **Total** | | **85** |
+
+**Remaining planned work:** about 56 hours to finish v1.0 (Phases 6–10) plus 85 hours after it, about **140 hours** in total.
 
 ## 11. Engineering rules for this repo
 
