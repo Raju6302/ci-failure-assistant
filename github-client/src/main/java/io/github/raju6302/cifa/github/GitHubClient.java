@@ -1,6 +1,7 @@
 package io.github.raju6302.cifa.github;
 
 import io.github.raju6302.cifa.github.auth.GitHubTokenProvider;
+import io.github.raju6302.cifa.github.model.CheckRunAnnotation;
 import io.github.raju6302.cifa.github.model.JobLog;
 import io.github.raju6302.cifa.github.model.WorkflowJob;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestClientResponseException;
 public class GitHubClient {
 
     private static final int PAGE_SIZE = 100;
+    private static final int MAX_ANNOTATION_PAGES = 10;
 
     private final RestClient api;
     private final GitHubTokenProvider tokens;
@@ -82,6 +84,32 @@ public class GitHubClient {
                     }
                     return new JobLog(tail.text(), tail.totalBytes(), tail.truncated());
                 }));
+    }
+
+    /**
+     * Annotations of a job's check run (a job's id is also its check run's id). This is the
+     * only place GitHub says a {@code cancelled} job actually hit its time limit. Stops after
+     * {@value #MAX_ANNOTATION_PAGES} pages so a noisy test reporter can't exhaust memory.
+     */
+    public List<CheckRunAnnotation> listAnnotations(String repo, long checkRunId, Long installationId) {
+        String[] ownerAndName = split(repo);
+        String token = tokens.token(installationId);
+        List<CheckRunAnnotation> annotations = new ArrayList<>();
+        for (int page = 1; page <= MAX_ANNOTATION_PAGES; page++) {
+            int pageNumber = page;
+            CheckRunAnnotation[] result = call(() -> api.get()
+                    .uri("/repos/{owner}/{name}/check-runs/{id}/annotations?per_page={size}&page={page}",
+                            ownerAndName[0], ownerAndName[1], checkRunId, PAGE_SIZE, pageNumber)
+                    .header("Authorization", "Bearer " + token)
+                    .retrieve()
+                    .body(CheckRunAnnotation[].class));
+            List<CheckRunAnnotation> pageAnnotations = result == null ? List.of() : List.of(result);
+            annotations.addAll(pageAnnotations);
+            if (pageAnnotations.size() < PAGE_SIZE) {
+                break;
+            }
+        }
+        return annotations;
     }
 
     /** Splits "owner/name" into two path segments; as one URI variable the slash would be encoded. */
