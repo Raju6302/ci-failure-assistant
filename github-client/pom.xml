@@ -12,7 +12,7 @@
 
     <artifactId>github-client</artifactId>
     <name>github-client</name>
-    <description>GitHub REST client: App/token auth, Actions jobs and logs, webhook verification</description>
+    <description>GitHub REST client: App/token auth, Actions runs, jobs and logs, repository contents, webhook verification</description>
 
     <dependencies>
         <dependency>
