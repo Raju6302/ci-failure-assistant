@@ -23,3 +23,14 @@ management:
     health:
       probes:
         enabled: true
+
+cifa:
+  github:
+    token: ${GITHUB_TOKEN:}
+    app:
+      id: ${GITHUB_APP_ID:}
+      private-key-path: ${GITHUB_APP_PRIVATE_KEY_PATH:}
+  ingestion:
+    max-attempts: 3
+    reclaim-idle: PT2M
+    reclaim-interval: PT1M
