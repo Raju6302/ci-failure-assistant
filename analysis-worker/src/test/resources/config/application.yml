@@ -1,0 +1,7 @@
+# Test defaults (loaded on top of the main application.yml): no LLM calls and no model
+# download unless a test opts in.
+cifa:
+  diagnosis:
+    agent-enabled: false
+  rag:
+    embedder: hashing
