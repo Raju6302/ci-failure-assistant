@@ -5,7 +5,6 @@ import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.client.transport.HttpClientStreamableHttpTransport;
 import io.modelcontextprotocol.spec.McpSchema;
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,17 +63,16 @@ class McpAgentTools implements AgentTools, AutoCloseable {
     private synchronized McpSyncClient client() {
         if (client == null) {
             URI url = config.url();
-            HttpRequest.Builder request = HttpRequest.newBuilder();
-            if (config.authToken() != null && !config.authToken().isBlank()) {
-                request.header("Authorization", "Bearer " + config.authToken());
-            }
-            HttpClientStreamableHttpTransport transport = HttpClientStreamableHttpTransport
+            String token = config.authToken();
+            HttpClientStreamableHttpTransport.Builder transport = HttpClientStreamableHttpTransport
                     .builder(url.getScheme() + "://" + url.getAuthority())
                     .endpoint(url.getPath())
-                    .requestBuilder(request)
-                    .connectTimeout(Duration.ofSeconds(10))
-                    .build();
-            McpSyncClient connected = McpClient.sync(transport)
+                    .connectTimeout(Duration.ofSeconds(10));
+            if (token != null && !token.isBlank()) {
+                transport.httpRequestCustomizer((request, method, uri, body, context) ->
+                        request.header("Authorization", "Bearer " + token));
+            }
+            McpSyncClient connected = McpClient.sync(transport.build())
                     .requestTimeout(Duration.ofSeconds(60))
                     .clientInfo(new McpSchema.Implementation("cifa-analysis-worker", "0.1.0"))
                     .build();

@@ -20,7 +20,7 @@ class RagConfiguration {
         if (!properties.enabled() || "hashing".equals(properties.embedder())) {
             return new HashingEmbedder();
         }
-        return new OnnxEmbedder(cacheDirectory.toString());
+        return new OnnxEmbedder(cacheDirectory.toString(), properties.modelUri(), properties.tokenizerUri());
     }
 
     @Bean

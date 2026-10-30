@@ -18,6 +18,8 @@ import org.springframework.util.unit.DataSize;
  * @param maxSnippetChars   cap per snippet in the prompt
  * @param memoryResults     similar past failures given to the agent
  * @param memoryMaxDistance cosine distance under which a past failure counts as similar
+ * @param modelUri          ONNX embedding model (default: all-MiniLM-L6-v2 from Hugging Face)
+ * @param tokenizerUri      its tokenizer
  */
 @ConfigurationProperties("cifa.rag")
 public record RagProperties(
@@ -30,5 +32,9 @@ public record RagProperties(
         @DefaultValue("6") int topK,
         @DefaultValue("2500") int maxSnippetChars,
         @DefaultValue("3") int memoryResults,
-        @DefaultValue("0.35") double memoryMaxDistance) {
+        @DefaultValue("0.35") double memoryMaxDistance,
+        @DefaultValue(HUGGING_FACE_MODEL + "/onnx/model.onnx") String modelUri,
+        @DefaultValue(HUGGING_FACE_MODEL + "/tokenizer.json") String tokenizerUri) {
+
+    static final String HUGGING_FACE_MODEL = "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main";
 }

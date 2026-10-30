@@ -31,7 +31,7 @@ class RetrievalIntegrationTests {
     TransactionTemplate transactions;
 
     RagProperties properties = new RagProperties(true, "hashing", 3000, org.springframework.util.unit.DataSize.ofKilobytes(200),
-            org.springframework.util.unit.DataSize.ofMegabytes(100), 60, 6, 2500, 3, 0.35);
+            org.springframework.util.unit.DataSize.ofMegabytes(100), 60, 6, 2500, 3, 0.35, "unused", "unused");
     Embedder embedder = new HashingEmbedder();
     long repositoryId;
 
