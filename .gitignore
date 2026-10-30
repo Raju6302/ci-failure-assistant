@@ -1,0 +1,15 @@
+# Build output
+target/
+*.jar.original
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Secrets: never commit these
+.env
+*.pem
+*.key
+secrets/
