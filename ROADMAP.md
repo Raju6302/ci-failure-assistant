@@ -4,7 +4,7 @@ An AI agent that explains why a CI build failed and suggests a fix.
 
 When a GitHub Actions run fails, the assistant fetches the logs, finds the code related to the error, and checks whether the same failure has happened before. It then posts a short diagnosis to the pull request: what broke, why, the evidence, and a suggested fix.
 
-> **Progress:** Phase 0 ✅ · Phase 1 ✅ · next: Phase 2 (log processing and classification)
+> **Progress:** Phase 0 ✅ · Phase 1 ✅ · Phase 3 ✅ · next: Phase 2 (log processing and classification)
 
 ---
 
@@ -137,16 +137,16 @@ Total estimate: **about 136 hours** across 11 phases. Each phase ends with somet
 **Done when:** failures are classified correctly, without any AI, on the sandbox set. (**Milestone M1**)
 
 ### Phase 3: MCP GitHub server (14h)
-- [ ] MCP server with tools:
-  - `get_commit_diff(repo, sha)`
-  - `get_file(repo, path, ref, line_range)`
-  - `list_recent_commits(repo, branch, n)`
+- [x] MCP server (Streamable HTTP at `/mcp`) with tools:
+  - `get_commit_diff(repo, sha, path_filter?)`
+  - `get_file(repo, path, ref, start_line?, end_line?)`, with numbered lines
+  - `list_recent_commits(repo, branch, limit?)`
   - `search_code(repo, query)`
   - `get_workflow_file(repo, run_id)`
-  - `get_job_log_section(run_id, job, step)`
-- [ ] Auth with the GitHub App installation token, rate-limit handling, response caching
-- [ ] Output size limits so a tool never floods the model's context
-- [ ] Contract tests for every tool, and a guide to testing it with any MCP client
+  - `get_job_log_section(github_job_id, start_line?, end_line?, grep?)`, from the stored, redacted log (never re-fetched from GitHub)
+- [x] Auth with each repo's GitHub App installation token, only for repos that sent webhooks; rate limits and GitHub errors returned as clear tool errors; caching of lookups by commit sha; a shared bearer token between worker and server
+- [x] Output size limits so a tool never floods the model's context, and a path deny-list that keeps the eval answers (`evals/`) away from the agent
+- [x] Contract tests for every tool (a real MCP client against the running server), and a [guide](docs/mcp-tools.md) to testing it with any MCP client
 
 **Done when:** the MCP server can be connected to any MCP client and its tools return correct data.
 
