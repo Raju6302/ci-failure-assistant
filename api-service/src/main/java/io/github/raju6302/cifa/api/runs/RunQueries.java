@@ -10,23 +10,35 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Read side for the dashboard. */
 @Repository
 class RunQueries {
 
+    // The run's first failed job (same order as the detail page) gives the category shown in the list.
     private static final String SUMMARY_SELECT = """
             SELECT r.id, repo.full_name, r.workflow_name, r.head_branch, r.head_sha, r.run_number, r.run_attempt,
                    r.event, r.conclusion, r.status, r.html_url, r.received_at, r.ingested_at, r.error_message,
-                   (SELECT count(*) FROM failed_job j WHERE j.workflow_run_id = r.id) AS failed_job_count
+                   (SELECT count(*) FROM failed_job j WHERE j.workflow_run_id = r.id) AS failed_job_count,
+                   first_job.category, first_job.summary
               FROM workflow_run r
               JOIN repository repo ON repo.id = r.repository_id
+              LEFT JOIN LATERAL (
+                    SELECT a.category, a.summary
+                      FROM failed_job j
+                      LEFT JOIN failure_analysis a ON a.failed_job_id = j.id
+                     WHERE j.workflow_run_id = r.id
+                     ORDER BY j.started_at NULLS LAST, j.id
+                     LIMIT 1) first_job ON true
             """;
 
     private final JdbcClient jdbc;
+    private final JsonMapper json;
 
-    RunQueries(JdbcClient jdbc) {
+    RunQueries(JdbcClient jdbc, JsonMapper json) {
         this.jdbc = jdbc;
+        this.json = json;
     }
 
     List<RunSummary> latest(int limit) {
@@ -46,11 +58,14 @@ class RunQueries {
 
     private List<RunDetail.FailedJob> failedJobs(long runId) {
         return jdbc.sql("""
-                        SELECT id, github_job_id, name, conclusion, failed_steps, log_bytes, log_truncated,
-                               html_url, started_at, completed_at
-                          FROM failed_job
-                         WHERE workflow_run_id = :runId
-                         ORDER BY started_at NULLS LAST, id""")
+                        SELECT j.id, j.github_job_id, j.name, j.conclusion, j.failed_steps, j.log_bytes, j.log_truncated,
+                               j.html_url, j.started_at, j.completed_at,
+                               a.category, a.failed_step, a.summary, a.error_excerpt, a.error_start_line, a.error_end_line,
+                               a.code_references::text AS code_references, a.fingerprint
+                          FROM failed_job j
+                          LEFT JOIN failure_analysis a ON a.failed_job_id = j.id
+                         WHERE j.workflow_run_id = :runId
+                         ORDER BY j.started_at NULLS LAST, j.id""")
                 .param("runId", runId)
                 .query((rs, row) -> new RunDetail.FailedJob(
                         rs.getLong("id"),
@@ -62,8 +77,24 @@ class RunQueries {
                         rs.getBoolean("log_truncated"),
                         rs.getString("html_url"),
                         instant(rs, "started_at"),
-                        instant(rs, "completed_at")))
+                        instant(rs, "completed_at"),
+                        analysis(rs)))
                 .list();
+    }
+
+    private RunDetail.Analysis analysis(ResultSet rs) throws SQLException {
+        if (rs.getString("category") == null) {
+            return null;
+        }
+        return new RunDetail.Analysis(
+                rs.getString("category"),
+                rs.getString("failed_step"),
+                rs.getString("summary"),
+                rs.getString("error_excerpt"),
+                rs.getObject("error_start_line", Integer.class),
+                rs.getObject("error_end_line", Integer.class),
+                List.of(json.readValue(rs.getString("code_references"), RunDetail.CodeReference[].class)),
+                rs.getString("fingerprint"));
     }
 
     private static RunSummary summary(ResultSet rs) throws SQLException {
@@ -82,7 +113,9 @@ class RunQueries {
                 rs.getString("html_url"),
                 instant(rs, "received_at"),
                 instant(rs, "ingested_at"),
-                rs.getString("error_message"));
+                rs.getString("error_message"),
+                rs.getString("category"),
+                rs.getString("summary"));
     }
 
     private static Instant instant(ResultSet rs, String column) throws SQLException {
