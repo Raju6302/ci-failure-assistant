@@ -69,14 +69,20 @@ services:
       test: ["CMD", "curl", "-fs", "http://localhost:8081/actuator/health/readiness"]
 
   mcp-github-server:
+    <<: *backend
     build:
       context: ..
       args: { SERVICE: mcp-github-server }
+    # Reads the database and GitHub only; no Redis. MCP_AUTH_TOKEN comes from ../.env.
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports: ["127.0.0.1:8082:8082"]
+    volumes:
+      - ../secrets:/run/secrets:ro
     healthcheck:
       <<: *health
       test: ["CMD", "curl", "-fs", "http://localhost:8082/actuator/health/readiness"]
-    restart: unless-stopped
 
   dashboard:
     build: ../dashboard

@@ -9,9 +9,10 @@ When a GitHub Actions run fails, the assistant fetches the logs, finds the code 
 and checks whether the same failure has happened before. It then posts a short diagnosis
 on the pull request: what broke, why, the evidence, and a suggested fix.
 
-> **Status:** Phases 0–1 of 11 are done. Failed runs are received, stored and their logs
-> fetched (with secrets removed). Next up: log parsing and classification (Phase 2),
-> then the MCP server and the AI agent. See the full [roadmap](ROADMAP.md).
+> **Status:** Phases 0, 1 and 3 of 11 are done. Failed runs are received, stored and their
+> logs fetched (with secrets removed), and an MCP server is ready to give the agent
+> read-only tools. Next up: log parsing and classification (Phase 2), then the AI agent.
+> See the full [roadmap](ROADMAP.md).
 
 ## Why
 
@@ -28,7 +29,7 @@ matching an error to code and to past fixes. An LLM with the right context can d
         ▼
 ┌───────────────────┐  Redis Stream  ┌──────────────────────────┐   MCP   ┌──────────────────┐
 │   api-service     │ ─────────────► │    analysis-worker       │ ──────► │ mcp-github-server│──► GitHub API
-│ webhooks, REST    │                │ jobs + logs, redaction,  │         │ (Phase 3)        │
+│ webhooks, REST    │                │ jobs + logs, redaction,  │         │ repo + log tools │
 │                   │                │ agent + RAG (Phase 4–5)  │         │                  │
 └────────┬──────────┘                └────────────┬─────────────┘         └──────────────────┘
          │                                        │
@@ -53,6 +54,11 @@ What works today:
 4. **sandbox-repos** holds eight small projects that fail on purpose (compile error,
    failing test, missing dependency, flaky test, Docker build, timeout…). The
    *Sandbox failures* workflow runs them on demand, so there are always real failures to test with.
+5. **mcp-github-server** offers the agent (Phase 4) six read-only MCP tools: commit diffs,
+   files with line numbers, recent commits, code search, workflow files and sections of
+   the stored, redacted job logs. It only reads repos that sent webhooks, never returns
+   the eval answers in `evals/`, caps every result's size, and can require a shared bearer
+   token. See [MCP tools](docs/mcp-tools.md).
 
 Authentication works with a **GitHub App** (installation tokens, cached and refreshed)
 or a plain **access token** for local development.
@@ -71,6 +77,7 @@ docker compose -f infra/docker-compose.yml up --build
 | Dashboard | http://localhost:3000 |
 | API + webhook endpoint | http://localhost:8080 (`POST /webhooks/github`, `GET /api/runs`) |
 | Worker health | http://localhost:8081/actuator/health |
+| MCP server | http://localhost:8082/mcp (Streamable HTTP, see [MCP tools](docs/mcp-tools.md)) |
 
 Send it a test delivery with `scripts/send-test-webhook.sh`, or connect real GitHub
 webhooks: see [local development](docs/local-development.md) and
@@ -81,8 +88,8 @@ webhooks: see [local development](docs/local-development.md) and
 ```
 api-service/        webhooks, REST API, queue producer, relay
 analysis-worker/    queue consumer, GitHub ingestion, secret redaction (agent + RAG later)
-mcp-github-server/  MCP tools for the agent (Phase 3)
-github-client/      GitHub REST client: App/token auth, jobs, logs, webhook signatures
+mcp-github-server/  MCP tools for the agent: diffs, files, search, workflow files, logs
+github-client/      GitHub REST client: App/token auth, jobs, logs, commits, files, search, webhook signatures
 common/             shared status values, queue names and database migrations
 dashboard/          React + TypeScript frontend
 sandbox-repos/      projects that fail on purpose
@@ -93,7 +100,7 @@ docs/               setup guides and design decisions (ADRs)
 
 ## Tech stack
 
-Java 21 · Spring Boot 4 · Spring AI 2 (from Phase 4) · PostgreSQL 17 + pgvector ·
+Java 21 · Spring Boot 4 · Spring AI 2 (MCP server; agent from Phase 4) · PostgreSQL 17 + pgvector ·
 Redis Streams · React 19 + TypeScript + Vite + Tailwind · JUnit + Testcontainers +
 WireMock · Vitest · Docker · GitHub Actions. AWS (ECS, RDS, SQS) arrives in Phase 9.
 

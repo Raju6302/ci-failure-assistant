@@ -1,6 +1,33 @@
 spring:
   application:
     name: mcp-github-server
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/cifa}
+    username: ${DATABASE_USER:cifa}
+    password: ${DATABASE_PASSWORD:cifa}
+  ai:
+    mcp:
+      server:
+        name: cifa-github
+        version: 0.1.0
+        type: SYNC
+        # Streamable HTTP: one endpoint, POST for requests, optional SSE for streaming.
+        protocol: STREAMABLE
+        streamable-http:
+          mcp-endpoint: /mcp
+        # Tools are registered as explicit specifications (see ToolConfiguration), not @McpTool methods.
+        annotation-scanner:
+          enabled: false
+        # Tools only; this server has no resources or prompts.
+        capabilities:
+          tool: true
+          resource: false
+          prompt: false
+          completion: false
+        instructions: >-
+          Read-only tools for diagnosing failed GitHub Actions builds: commit diffs, files, recent
+          commits, code search, workflow files and the stored, secret-redacted job logs. Only
+          repositories connected to CI Failure Assistant can be read.
 
 server:
   port: ${PORT:8082}
@@ -15,3 +42,21 @@ management:
     health:
       probes:
         enabled: true
+
+cifa:
+  github:
+    token: ${GITHUB_TOKEN:}
+    app:
+      id: ${GITHUB_APP_ID:}
+      private-key-path: ${GITHUB_APP_PRIVATE_KEY_PATH:}
+  mcp:
+    # Shared with the analysis worker. Without it, anyone who can reach the port can use the tools.
+    auth-token: ${MCP_AUTH_TOKEN:}
+    # Never returned by any tool. The eval suite's expected answers must not leak to the agent.
+    denied-paths:
+      - evals/**
+    max-output-chars: 20000
+    max-patch-chars: 4000
+    cache:
+      ttl: PT30M
+      max-size: 32MB
