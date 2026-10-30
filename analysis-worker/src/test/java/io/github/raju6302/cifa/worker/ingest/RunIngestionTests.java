@@ -36,6 +36,16 @@ class RunIngestionTests {
 
     static final String JOBS_PATH = "/repos/octo/shop/actions/runs/9001/attempts/1/jobs";
     static final String LEAKED_TOKEN = "ghp" + "_" + "Zz9Yy8Xx7Ww6Vv5Uu4Tt3Ss2Rr1Qq0Pp9Oo8";
+    static final String TEST_FAILURE_LOG = """
+            2026-10-30T10:00:01.0000000Z ##[group]Run mvn -B verify
+            2026-10-30T10:00:01.0000000Z ##[endgroup]
+            2026-10-30T10:00:02.0000000Z Using token %s
+            2026-10-30T10:00:03.0000000Z [ERROR] shop.PriceCalculatorTest.appliesDiscount -- Time elapsed: 0.02 s <<< FAILURE!
+            2026-10-30T10:00:03.0000000Z org.opentest4j.AssertionFailedError: expected: <90.0> but was: <-900.0>
+            2026-10-30T10:00:03.0000000Z \tat shop.PriceCalculatorTest.appliesDiscount(PriceCalculatorTest.java:13)
+            2026-10-30T10:00:03.0000000Z [ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0
+            2026-10-30T10:00:04.0000000Z ##[error]Process completed with exit code 1.
+            """.formatted(LEAKED_TOKEN);
 
     @RegisterExtension
     static WireMockExtension github = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
@@ -74,7 +84,8 @@ class RunIngestionTests {
     @Test
     void ingestsFailedJobsFromTheQueueAndRedactsLogs() {
         stubJobs();
-        stubLog(301, "Run mvn verify\nUsing token " + LEAKED_TOKEN + "\n[ERROR] Tests run: 3, Failures: 1\n");
+        stubAnnotations(301, "[]");
+        stubLog(301, TEST_FAILURE_LOG);
 
         redis.opsForStream().add(StreamRecords.string(Map.of(RunQueue.RUN_ID_FIELD, Long.toString(runId)))
                 .withStreamKey(RunQueue.STREAM));
@@ -92,6 +103,110 @@ class RunIngestionTests {
         assertThat(jdbc.sql("SELECT failed_steps[1] FROM failed_job").query(String.class).single()).isEqualTo("Run tests");
         await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(
                 redis.opsForStream().pending(RunQueue.STREAM, RunQueue.GROUP, Range.unbounded(), 10).size()).isZero());
+    }
+
+    @Test
+    void analyzesEachJobRightAfterStoringIt() {
+        stubJobs();
+        stubAnnotations(301, """
+                [{"path": ".github", "start_line": 8, "end_line": 8, "annotation_level": "failure", "title": "",
+                  "message": "Process completed with exit code 1."},
+                 {"path": "src/main/java/shop/PriceCalculator.java", "start_line": 7, "end_line": 7,
+                  "annotation_level": "failure", "title": "Test report", "message": "Discount applied twice, key %s"}]"""
+                .formatted(LEAKED_TOKEN));
+        stubLog(301, TEST_FAILURE_LOG);
+
+        assertThat(ingestion.ingest(runId)).isEqualTo(IngestOutcome.DONE);
+
+        Map<String, Object> analysis = jdbc.sql("""
+                        SELECT a.category, a.failed_step, a.summary, a.error_excerpt, a.error_start_line, a.error_end_line,
+                               a.code_references::text AS refs, a.fingerprint, a.parser
+                          FROM failure_analysis a JOIN failed_job j ON j.id = a.failed_job_id
+                         WHERE j.github_job_id = 301""")
+                .query().singleRow();
+        assertThat(analysis)
+                .containsEntry("category", "TEST_FAILURE")
+                .containsEntry("failed_step", "Run tests")
+                .containsEntry("summary", "shop.PriceCalculatorTest.appliesDiscount: "
+                        + "org.opentest4j.AssertionFailedError: expected <90.0> but was <-900.0>")
+                .containsEntry("parser", "maven")
+                .containsEntry("error_start_line", 3)
+                .containsEntry("error_end_line", 8);
+        assertThat((String) analysis.get("error_excerpt")).contains("expected: <90.0> but was: <-900.0>").doesNotContain(LEAKED_TOKEN);
+        assertThat((String) analysis.get("refs")).isEqualTo("""
+                [{"line": 13, "path": "src/test/java/shop/PriceCalculatorTest.java"}, \
+                {"line": 7, "path": "src/main/java/shop/PriceCalculator.java"}]""");
+        assertThat((String) analysis.get("fingerprint")).matches("[0-9a-f]{64}");
+
+        String annotations = jdbc.sql("SELECT annotations::text FROM failed_job").query(String.class).single();
+        assertThat(annotations).contains("\"level\": \"failure\"", "Discount applied twice").doesNotContain(LEAKED_TOKEN);
+    }
+
+    @Test
+    void reingestingReplacesTheAnalysis() {
+        stubJobs();
+        stubAnnotations(301, "[]");
+        stubLog(301, TEST_FAILURE_LOG);
+
+        ingestion.ingest(runId);
+        jdbc.sql("UPDATE workflow_run SET status = 'QUEUED' WHERE id = :id").param("id", runId).update();
+        ingestion.ingest(runId);
+
+        assertThat(jdbc.sql("SELECT count(*) FROM failed_job").query(Integer.class).single()).isEqualTo(1);
+        assertThat(jdbc.sql("SELECT count(*) FROM failure_analysis").query(Integer.class).single()).isEqualTo(1);
+    }
+
+    @Test
+    void keepsJobsCancelledByTheirTimeLimitButNotOtherCancels() {
+        github.stubFor(get(urlPathEqualTo(JOBS_PATH)).willReturn(okJson("""
+                {"total_count": 2, "jobs": [
+                  {"id": 302, "name": "integration", "status": "completed", "conclusion": "cancelled",
+                   "steps": [{"number": 1, "name": "Checkout", "conclusion": "success"},
+                             {"number": 2, "name": "Integration tests", "conclusion": "cancelled"}]},
+                  {"id": 303, "name": "lint", "status": "completed", "conclusion": "cancelled",
+                   "steps": [{"number": 1, "name": "Lint", "conclusion": "cancelled"}]}
+                ]}""")));
+        stubAnnotations(302, """
+                [{"path": ".github", "start_line": 1, "end_line": 1, "annotation_level": "failure", "title": "",
+                  "message": "The job has exceeded the maximum execution time of 1m0s"},
+                 {"path": ".github", "start_line": 6, "end_line": 6, "annotation_level": "failure", "title": "",
+                  "message": "The operation was canceled."}]""");
+        stubAnnotations(303, """
+                [{"path": ".github", "start_line": 6, "end_line": 6, "annotation_level": "failure", "title": "",
+                  "message": "The operation was canceled."}]""");
+        stubLog(302, """
+                2026-10-30T10:00:01.0000000Z ##[group]Run ./integration-test.sh
+                2026-10-30T10:00:01.0000000Z ##[endgroup]
+                2026-10-30T10:00:02.0000000Z Waiting for payments-service on localhost:9090...
+                2026-10-30T10:01:02.0000000Z ##[error]The operation was canceled.
+                """);
+
+        assertThat(ingestion.ingest(runId)).isEqualTo(IngestOutcome.DONE);
+
+        Map<String, Object> job = jdbc.sql("SELECT github_job_id, conclusion, failed_steps[1] AS step FROM failed_job")
+                .query().singleRow();
+        assertThat(job).containsEntry("github_job_id", 302L).containsEntry("conclusion", "cancelled")
+                .containsEntry("step", "Integration tests");
+        Map<String, Object> analysis = jdbc.sql("SELECT category, summary, parser FROM failure_analysis").query().singleRow();
+        assertThat(analysis)
+                .containsEntry("category", "INFRASTRUCTURE")
+                .containsEntry("parser", "timeout")
+                .containsEntry("summary", "Job timed out after 1m0s in \"Integration tests\"; "
+                        + "last output: Waiting for payments-service on localhost:9090...");
+        github.verify(0, getRequestedFor(urlEqualTo("/repos/octo/shop/actions/jobs/303/logs")));
+    }
+
+    @Test
+    void ingestsJobsWhenAnnotationsAreNotAccessible() {
+        stubJobs();
+        github.stubFor(get(urlPathEqualTo("/repos/octo/shop/check-runs/301/annotations"))
+                .willReturn(aResponse().withStatus(403).withBody("{\"message\":\"Resource not accessible by integration\"}")));
+        stubLog(301, TEST_FAILURE_LOG);
+
+        assertThat(ingestion.ingest(runId)).isEqualTo(IngestOutcome.DONE);
+
+        assertThat(status()).isEqualTo("INGESTED");
+        assertThat(jdbc.sql("SELECT category FROM failure_analysis").query(String.class).single()).isEqualTo("TEST_FAILURE");
     }
 
     @Test
@@ -120,12 +235,16 @@ class RunIngestionTests {
     @Test
     void storesJobsEvenWhenTheirLogHasExpired() {
         stubJobs();
+        stubAnnotations(301, "[]");
         github.stubFor(get(urlEqualTo("/repos/octo/shop/actions/jobs/301/logs")).willReturn(aResponse().withStatus(410)));
 
         assertThat(ingestion.ingest(runId)).isEqualTo(IngestOutcome.DONE);
 
         assertThat(status()).isEqualTo("INGESTED");
         assertThat(jdbc.sql("SELECT log_text FROM failed_job").query(String.class).optional()).isEmpty();
+        assertThat(jdbc.sql("SELECT category, summary FROM failure_analysis").query().singleRow())
+                .containsEntry("category", "UNKNOWN")
+                .containsEntry("summary", "No log or error annotations available; failed step: \"Run tests\"");
     }
 
     @Test
@@ -146,6 +265,10 @@ class RunIngestionTests {
                    "steps": [{"number": 1, "name": "Checkout", "conclusion": "success"},
                              {"number": 2, "name": "Run tests", "conclusion": "failure"}]}
                 ]}""")));
+    }
+
+    private void stubAnnotations(long jobId, String body) {
+        github.stubFor(get(urlPathEqualTo("/repos/octo/shop/check-runs/%d/annotations".formatted(jobId))).willReturn(okJson(body)));
     }
 
     private void stubLog(long jobId, String body) {
