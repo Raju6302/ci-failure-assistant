@@ -1,8 +1,10 @@
 # Dashboard
 
 Web UI for CI Failure Assistant. It lists failed GitHub Actions runs picked up by the
-`api-service` and shows each run's failed jobs, failed steps and log sizes. AI diagnoses
-will appear here from Phase 4 of the [roadmap](../ROADMAP.md).
+`api-service` and shows each run's failed jobs and failed steps, with the worker's
+analysis of each job: failure category, the error in one line, the relevant log lines
+with their line numbers, and the files involved. AI diagnoses will appear here from
+Phase 4 of the [roadmap](../ROADMAP.md).
 
 Built with React, TypeScript, Vite, Tailwind CSS v4, TanStack Query and React Router.
 

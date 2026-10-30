@@ -1,3 +1,5 @@
+import type { CodeReference } from '../api/runs'
+
 const SHORT_SHA_LENGTH = 7
 
 export function shortSha(sha: string): string {
@@ -65,4 +67,9 @@ export function formatDateTime(date: Date): string {
 export function formatConclusion(conclusion: string): string {
   const words = conclusion.replaceAll('_', ' ')
   return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
+/** `src/App.java:12`, or just the path when the line is unknown. */
+export function formatCodeLocation({ path, line }: CodeReference): string {
+  return line === null ? path : `${path}:${line}`
 }

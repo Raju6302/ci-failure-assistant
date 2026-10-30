@@ -79,8 +79,83 @@ class RunsControllerTests {
     }
 
     @Test
+    void showsEachJobsAnalysisOrNullWhenThereIsNone() {
+        long runId = receive(failedRunPayload());
+        long analyzed = insertJob(runId, 555, "java-test-failure", "2026-10-30T09:59:10Z");
+        insertJob(runId, 556, "lint", "2026-10-30T09:59:20Z");
+        insertAnalysis(analyzed, "TEST_FAILURE", "PriceCalculatorTest.appliesPercentageDiscount: expected <90.0> but was <-900.0>");
+
+        assertThat(mvc.get().uri("/api/runs/{id}", runId))
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.category", category -> category.assertThat().isEqualTo("TEST_FAILURE"))
+                .hasPathSatisfying("$.jobs[0].analysis.category", category -> category.assertThat().isEqualTo("TEST_FAILURE"))
+                .hasPathSatisfying("$.jobs[0].analysis.failedStep", step -> step.assertThat().isEqualTo("Build and test"))
+                .hasPathSatisfying("$.jobs[0].analysis.summary", summary -> summary.assertThat().asString()
+                        .contains("appliesPercentageDiscount"))
+                .hasPathSatisfying("$.jobs[0].analysis.excerpt", excerpt -> excerpt.assertThat().asString()
+                        .startsWith("[ERROR] Failures:"))
+                .hasPathSatisfying("$.jobs[0].analysis.excerptStartLine", line -> line.assertThat().isEqualTo(208))
+                .hasPathSatisfying("$.jobs[0].analysis.excerptEndLine", line -> line.assertThat().isEqualTo(209))
+                .hasPathSatisfying("$.jobs[0].analysis.codeReferences[0].path", path -> path.assertThat()
+                        .isEqualTo("sandbox-repos/java-test-failure/src/test/java/shop/PriceCalculatorTest.java"))
+                .hasPathSatisfying("$.jobs[0].analysis.codeReferences[0].line", line -> line.assertThat().isEqualTo(13))
+                .hasPathSatisfying("$.jobs[0].analysis.codeReferences[1].line", line -> line.assertThat().isNull())
+                .hasPathSatisfying("$.jobs[0].analysis.fingerprint", fingerprint -> fingerprint.assertThat().isEqualTo("f".repeat(64)))
+                .hasPathSatisfying("$.jobs[1].name", name -> name.assertThat().isEqualTo("lint"))
+                .hasPathSatisfying("$.jobs[1].analysis", analysis -> analysis.assertThat().isNull());
+    }
+
+    @Test
+    void listsTheCategoryAndSummaryOfEachRunsFirstFailedJob() {
+        long older = receive(failedRunPayload());
+        long first = insertJob(older, 555, "java-compile-error", "2026-10-30T09:59:10Z");
+        long second = insertJob(older, 556, "java-test-failure", "2026-10-30T09:59:20Z");
+        insertAnalysis(second, "TEST_FAILURE", "a test failed");
+        insertAnalysis(first, "COMPILE_ERROR", "InvoiceService.java:9: cannot find symbol: method price()");
+        receive(failedRunPayload().replace("\"run_attempt\": 1", "\"run_attempt\": 2"));
+
+        assertThat(mvc.get().uri("/api/runs"))
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$[0].category", category -> category.assertThat().isNull())
+                .hasPathSatisfying("$[0].summary", summary -> summary.assertThat().isNull())
+                .hasPathSatisfying("$[1].category", category -> category.assertThat().isEqualTo("COMPILE_ERROR"))
+                .hasPathSatisfying("$[1].summary", summary -> summary.assertThat()
+                        .isEqualTo("InvoiceService.java:9: cannot find symbol: method price()"));
+    }
+
+    @Test
     void returns404ForUnknownRuns() {
         assertThat(mvc.get().uri("/api/runs/999")).hasStatus(HttpStatus.NOT_FOUND);
+    }
+
+    private long insertJob(long runId, long githubJobId, String name, String startedAt) {
+        return jdbc.sql("""
+                        INSERT INTO failed_job (workflow_run_id, github_job_id, name, conclusion, started_at)
+                        VALUES (:runId, :jobId, :name, 'failure', CAST(:startedAt AS timestamptz))
+                        RETURNING id""")
+                .param("runId", runId)
+                .param("jobId", githubJobId)
+                .param("name", name)
+                .param("startedAt", startedAt)
+                .query(Long.class)
+                .single();
+    }
+
+    private void insertAnalysis(long failedJobId, String category, String summary) {
+        jdbc.sql("""
+                        INSERT INTO failure_analysis (failed_job_id, category, failed_step, summary, error_excerpt,
+                                                      error_start_line, error_end_line, code_references, fingerprint, parser)
+                        VALUES (:jobId, :category, 'Build and test', :summary,
+                                E'[ERROR] Failures:\\n[ERROR]   PriceCalculatorTest.appliesPercentageDiscount:13', 208, 209,
+                                '[{"path": "sandbox-repos/java-test-failure/src/test/java/shop/PriceCalculatorTest.java", "line": 13},
+                                  {"path": "pom.xml", "line": null}]',
+                                repeat('f', 64), 'maven')""")
+                .param("jobId", failedJobId)
+                .param("category", category)
+                .param("summary", summary)
+                .update();
     }
 
     private long receive(String payload) {

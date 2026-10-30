@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import io.github.raju6302.cifa.github.model.CheckRunAnnotation;
 import io.github.raju6302.cifa.github.model.JobLog;
 import io.github.raju6302.cifa.github.model.WorkflowJob;
 import java.net.URI;
@@ -78,6 +79,33 @@ class GitHubClientTest {
         assertThat(log.truncated()).isTrue();
         assertThat(log.totalBytes()).isEqualTo(body.length());
         assertThat(log.text()).endsWith("[ERROR] the real error\n");
+    }
+
+    @Test
+    void listsCheckRunAnnotations() {
+        github.stubFor(get(urlPathEqualTo("/repos/octo/app/check-runs/57/annotations"))
+                .willReturn(okJson("""
+                        [{"path": ".github", "start_line": 1, "end_line": 1, "annotation_level": "failure",
+                          "title": "", "message": "The job has exceeded the maximum execution time of 1m0s"},
+                         {"path": "src/main/java/shop/InvoiceService.java", "start_line": 9, "end_line": 9,
+                          "annotation_level": "failure", "title": "", "message": "cannot find symbol"},
+                         {"path": ".github", "start_line": 1, "end_line": 1, "annotation_level": "notice",
+                          "title": "", "message": "ubuntu-latest is moving"}]""")));
+
+        List<CheckRunAnnotation> annotations = client.listAnnotations("octo/app", 57, null);
+
+        assertThat(annotations).hasSize(3);
+        assertThat(annotations.getFirst().message()).contains("exceeded the maximum execution time");
+        assertThat(annotations.get(1))
+                .returns(9, CheckRunAnnotation::startLine)
+                .returns(true, CheckRunAnnotation::hasFile)
+                .returns(true, CheckRunAnnotation::isFailure);
+        assertThat(annotations.get(2))
+                .returns(false, CheckRunAnnotation::hasFile)
+                .returns(false, CheckRunAnnotation::isFailure);
+        github.verify(getRequestedFor(urlPathEqualTo("/repos/octo/app/check-runs/57/annotations"))
+                .withQueryParam("per_page", com.github.tomakehurst.wiremock.client.WireMock.equalTo("100"))
+                .withHeader("Authorization", com.github.tomakehurst.wiremock.client.WireMock.equalTo("Bearer test-token")));
     }
 
     @Test

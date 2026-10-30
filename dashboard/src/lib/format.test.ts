@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatBytes, formatConclusion, formatDuration, relativeTime, shortSha } from './format'
+import { formatBytes, formatCodeLocation, formatConclusion, formatDuration, relativeTime, shortSha } from './format'
 
 describe('shortSha', () => {
   it('keeps the first 7 characters', () => {
@@ -61,5 +61,12 @@ describe('formatConclusion', () => {
     ['startup_failure', 'Startup failure'],
   ])('formats %s as %s', (conclusion, expected) => {
     expect(formatConclusion(conclusion)).toBe(expected)
+  })
+})
+
+describe('formatCodeLocation', () => {
+  it('joins path and line, or shows the path alone', () => {
+    expect(formatCodeLocation({ path: 'src/App.java', line: 12 })).toBe('src/App.java:12')
+    expect(formatCodeLocation({ path: 'pom.xml', line: null })).toBe('pom.xml')
   })
 })
