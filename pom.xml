@@ -29,6 +29,7 @@
 
     <modules>
         <module>common</module>
+        <module>github-client</module>
         <module>api-service</module>
         <module>analysis-worker</module>
         <module>mcp-github-server</module>
