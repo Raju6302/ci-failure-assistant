@@ -15,7 +15,7 @@ class RagConfiguration {
     @Bean
     @ConditionalOnMissingBean
     Embedder embedder(RagProperties properties,
-                      @Value("${cifa.rag.model-cache-dir:${java.io.tmpdir}/cifa-models}") Path cacheDirectory) throws Exception {
+                      @Value("${cifa.rag.model-cache-dir:${java.io.tmpdir}/cifa-models}") Path cacheDirectory) {
         // With RAG off nothing is embedded, so don't download the model.
         if (!properties.enabled() || "hashing".equals(properties.embedder())) {
             return new HashingEmbedder();
