@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import type { WorkflowRun } from '../api/runs'
 import { shortSha } from '../lib/format'
 import { Card } from './Card'
+import { CategoryBadge } from './CategoryBadge'
 import { Conclusion } from './Conclusion'
 import { ExternalLink } from './ExternalLink'
 import { RelativeTime } from './RelativeTime'
@@ -16,6 +17,7 @@ const HEADERS = [
   { label: 'Commit', className: 'hidden md:table-cell' },
   { label: 'Conclusion', className: 'hidden sm:table-cell' },
   { label: 'Status' },
+  { label: 'Failure', className: 'hidden sm:table-cell' },
   { label: 'Failed jobs', className: 'hidden md:table-cell text-right' },
   { label: 'Received', className: 'hidden sm:table-cell' },
   { label: <span className="sr-only">GitHub</span> },
@@ -91,6 +93,20 @@ function RunRow({ run }: { run: WorkflowRun }) {
       </td>
       <td className={CELL}>
         <StatusBadge status={run.status} />
+      </td>
+      <td className={`${CELL} hidden sm:table-cell`}>
+        {run.category ? (
+          <>
+            <CategoryBadge category={run.category} />
+            {run.summary && (
+              <div className="mt-1 max-w-xs truncate text-xs text-zinc-500 dark:text-zinc-400" title={run.summary}>
+                {run.summary}
+              </div>
+            )}
+          </>
+        ) : (
+          <span className="text-zinc-400 dark:text-zinc-500">—</span>
+        )}
       </td>
       <td className={`${CELL} hidden text-right tabular-nums md:table-cell`}>{run.failedJobCount}</td>
       <td className={`${CELL} hidden text-zinc-500 sm:table-cell dark:text-zinc-400`}>

@@ -4,7 +4,7 @@ An AI agent that explains why a CI build failed and suggests a fix.
 
 When a GitHub Actions run fails, the assistant fetches the logs, finds the code related to the error, and checks whether the same failure has happened before. It then posts a short diagnosis to the pull request: what broke, why, the evidence, and a suggested fix.
 
-> **Progress:** Phase 0 ✅ · Phase 1 ✅ · next: Phase 2 (log processing and classification)
+> **Progress:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ · next: Phase 3 (MCP GitHub server)
 
 ---
 
@@ -92,7 +92,7 @@ ci-failure-assistant/
 
 - `repository`: installed repo, settings, GitHub App installation id
 - `workflow_run`: run id, commit SHA, branch, PR number, status, timestamps
-- `failure`: job, step, category, extracted error lines, fingerprint
+- `failure_analysis`: job, failed step, category, summary, error excerpt with line numbers, code references, fingerprint
 - `diagnosis`: root cause, confidence, evidence, suggested fix, model used, tokens, cost, latency
 - `feedback`: 👍/👎, "this was the actual fix" link
 - `code_chunk`: repo, path, symbol, content, embedding (`vector`)
@@ -128,11 +128,12 @@ Total estimate: **about 136 hours** across 11 phases. Each phase ends with somet
 **Done when:** a failed run in a sandbox repo appears in the database within seconds.
 
 ### Phase 2: Log processing and classification (12h)
-- [ ] Extend **secret redaction** (basic version shipped in Phase 1): more token formats, a test corpus, redaction counts per log
-- [ ] Error extraction: find the failing step and trim to the relevant lines with context
-- [ ] Parsers for common formats: Maven/Gradle, JUnit reports, npm/Jest, pytest, Docker build
-- [ ] Rule-based classification into categories, plus a failure fingerprint so repeats can be grouped
-- [ ] Show category and error excerpt in the dashboard
+- [x] Extend **secret redaction** (basic version shipped in Phase 1): more token formats (npm, PyPI, Google, Stripe, GitLab, Docker Hub, Anthropic/OpenAI, SendGrid, Slack webhooks), a test corpus, redaction counts per job, and bounded regexes tested against 2 MB pathological lines
+- [x] Error extraction: find the failing step and trim to the relevant lines with context (at most 60 lines, original line numbers kept)
+- [x] Parsers for common formats: Maven/Gradle (compiler errors, Surefire results, dependency resolution), Node test runner/Jest/TAP/npm/tsc, pytest/pip, Docker build, and a generic fallback; each also extracts repo-relative code references for Phase 5. JUnit XML reports aren't in job logs, so Surefire's console summary is parsed instead
+- [x] Rule-based classification into categories, plus a failure fingerprint so repeats can be grouped. A flaky test counts as flaky only with an explicit retry marker in the log; detecting it from history is Phase 7
+- [x] Jobs cancelled by `timeout-minutes` are recognized from their check-run annotations and classified as infrastructure; annotations also feed the analysis when the log has expired
+- [x] Show category and error excerpt in the dashboard
 
 **Done when:** failures are classified correctly, without any AI, on the sandbox set. (**Milestone M1**)
 
