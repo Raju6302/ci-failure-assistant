@@ -1,0 +1,30 @@
+{
+  "action": "completed",
+  "workflow_run": {
+    "id": 18923456789,
+    "name": "Sandbox failures",
+    "node_id": "WFR_kwLOOx1abc8AAAAEZ3J1bg",
+    "head_branch": "main",
+    "head_sha": "3f2c9a1b7e4d5c6b8a9f0e1d2c3b4a5f6e7d8c9b",
+    "path": ".github/workflows/sandbox-failures.yml",
+    "run_number": 42,
+    "run_attempt": 1,
+    "event": "workflow_dispatch",
+    "status": "completed",
+    "conclusion": "failure",
+    "workflow_id": 201234567,
+    "html_url": "https://github.com/Raju6302/ci-failure-assistant/actions/runs/18923456789",
+    "pull_requests": [{ "id": 2468013579, "number": 7 }],
+    "created_at": "2026-10-30T09:58:41Z",
+    "updated_at": "2026-10-30T10:00:02Z",
+    "run_started_at": "2026-10-30T09:58:41Z"
+  },
+  "repository": {
+    "id": 1080012345,
+    "name": "ci-failure-assistant",
+    "full_name": "Raju6302/ci-failure-assistant",
+    "private": false
+  },
+  "sender": { "login": "Raju6302", "id": 137879456 },
+  "installation": { "id": 61234567, "node_id": "MDIzOkludGVncmF0aW9uSW5zdGFsbGF0aW9uNjEyMzQ1Njc=" }
+}

@@ -23,3 +23,11 @@ management:
     health:
       probes:
         enabled: true
+
+cifa:
+  webhook:
+    secret: ${GITHUB_WEBHOOK_SECRET:}
+  relay:
+    # How often to look for runs that never reached the queue, and how old they must be.
+    interval: PT30S
+    min-age: PT30S
